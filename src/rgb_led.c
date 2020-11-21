@@ -1,18 +1,17 @@
 #include <string.h>
+#include <drivers/spi.h>
 #include "rgb_led.h"
-#include "nrf_gpio.h"
-#include "nrf_spim.h"
-#include "nrf_timer.h"
-#include "nrf_ppi.h"
-#include "board.h"
+
+static const struct device *spi;
+static struct spi_config spi_cfg;
+static struct spi_buf spi_tx_buf;
+const static struct spi_buf_set spi_tx_buf_set = {
+    .buffers = &spi_tx_buf,
+    .count = 1,
+};
 
 void s_bus_init(rgb_led_string_config_t* p_led_config)
 {
-    static uint8_t rx_byte;
-
-    /* Platform-specific code to init comm bus */
-    rgb_led_init_gpio(p_led_config);
-
     /* Start word */
     p_led_config->p_led_data[0].brightness = 0x00;
     p_led_config->p_led_data[0].blue = 0x00;
@@ -25,95 +24,34 @@ void s_bus_init(rgb_led_string_config_t* p_led_config)
     p_led_config->p_led_data[offset].green = 0xFF;
     p_led_config->p_led_data[offset].red = 0xFF;
 
-    /* Init SPIM peripheral */
-    nrf_spim_pins_set(LED_DRV_SPI,
-        p_led_config->pin_clock,
-        p_led_config->pin_data,
-        0xFFFFFFFF);
-    nrf_spim_frequency_set(LED_DRV_SPI, NRF_SPIM_FREQ_1M);
-    nrf_spim_configure(LED_DRV_SPI,
-                       NRF_SPIM_MODE_0,
-                       NRF_SPIM_BIT_ORDER_MSB_FIRST);
+    /* Store pointer to main buffer */
+    spi_tx_buf.buf = p_led_config->p_led_data;
+    spi_tx_buf.len = sizeof(p_led_config->p_led_data);
 
-    /* Setup TX buffer */
-    nrf_spim_tx_buffer_set(LED_DRV_SPI,
-                           (uint8_t*)(p_led_config->p_led_data),
-                           sizeof(p_led_config->p_led_data));
-
-    /* Setup EasyDMA lists */
-    nrf_spim_shorts_enable(LED_DRV_SPI, NRF_SPIM_SHORT_END_START_MASK);
-    nrf_spim_tx_list_enable(LED_DRV_SPI);
-
-    /* Track individual led data tx */
-    nrf_timer_mode_set(LED_DRV_COUNTER, NRF_TIMER_MODE_COUNTER);
-    nrf_timer_bit_width_set(LED_DRV_COUNTER, NRF_TIMER_BIT_WIDTH_16);
-
-    /* Count each led data transfer */
-    nrf_ppi_channel_endpoint_setup(LED_DRV_PPI_0,
-        nrf_spim_event_address_get(LED_DRV_SPI, NRF_SPIM_EVENT_END),
-        (uint32_t)nrf_timer_task_address_get(LED_DRV_COUNTER, NRF_TIMER_TASK_COUNT));
-    nrf_ppi_channel_enable(LED_DRV_PPI_0);
-
-    /* Stop SPI auto-transfer when data for all leds has been transferred */
-    nrf_ppi_channel_endpoint_setup(LED_DRV_PPI_1,
-        (uint32_t)nrf_timer_event_address_get(LED_DRV_COUNTER, NRF_TIMER_EVENT_COMPARE0),
-        nrf_spim_task_address_get(LED_DRV_SPI, NRF_SPIM_TASK_STOP));
-    nrf_ppi_channel_enable(LED_DRV_PPI_1);
-
-    /* Clear timer when all led data has been transferred */
-    nrf_timer_cc_write(LED_DRV_COUNTER, NRF_TIMER_CC_CHANNEL0, p_led_config->led_num + 2);
-    nrf_timer_shorts_enable(LED_DRV_COUNTER, NRF_TIMER_SHORT_COMPARE0_CLEAR_MASK);
-
-    /* Reset timer & CC0 event */
-    nrf_timer_event_clear(LED_DRV_COUNTER, NRF_TIMER_EVENT_COMPARE0);
-    nrf_timer_task_trigger(LED_DRV_COUNTER, NRF_TIMER_TASK_START);
-    nrf_timer_task_trigger(LED_DRV_COUNTER, NRF_TIMER_TASK_CLEAR);
-
-    /* Don't receive anything */
-    nrf_spim_rx_buffer_set(LED_DRV_SPI, &rx_byte, 1);
-
-    /* Enable SPI */
-    nrf_spim_enable(LED_DRV_SPI);
+    /* Init zephyr spi peripheral */
+    spi = device_get_binding(DT_LABEL(DT_ALIAS(ledspi)));
+    /* if(!spi) { */
+    /*     return -ENODEV; */
+    /* } */
+    spi_cfg.slave = 0;
+    spi_cfg.frequency = 1000000;
+    spi_cfg.operation =
+        SPI_OP_MODE_MASTER
+        | SPI_TRANSFER_MSB
+        | SPI_WORD_SET(32);
 }
 
 void rgb_led_init_gpio(rgb_led_string_config_t* p_led_config)
 {
-    /* Init SCK */
-    nrf_gpio_pin_clear(p_led_config->pin_clock);
-    nrf_gpio_cfg(p_led_config->pin_clock,
-                 NRF_GPIO_PIN_DIR_OUTPUT,
-                 NRF_GPIO_PIN_INPUT_CONNECT,
-                 NRF_GPIO_PIN_NOPULL,
-                 NRF_GPIO_PIN_S0S1,
-                 NRF_GPIO_PIN_NOSENSE);
-    /* Init SDO */
-    nrf_gpio_pin_clear(p_led_config->pin_data);
-    nrf_gpio_cfg_output(p_led_config->pin_data);
+    /* Not implemented for now */
+    (void)p_led_config;
+    return;
 }
 
 void rgb_led_write(rgb_led_string_config_t* p_led_config)
 {
-    /* Platform-specific code to transmit led data */
-    nrf_timer_event_clear(LED_DRV_COUNTER, NRF_TIMER_EVENT_COMPARE0);
-    nrf_spim_event_clear(LED_DRV_SPI, NRF_SPIM_EVENT_ENDTX);
-    nrf_spim_event_clear(LED_DRV_SPI, NRF_SPIM_EVENT_END);
-    nrf_spim_event_clear(LED_DRV_SPI, NRF_SPIM_EVENT_STARTED);
-    nrf_spim_event_clear(LED_DRV_SPI, NRF_SPIM_EVENT_STOPPED);
-
-    /* Reset pointer to start of buffer */
-    nrf_spim_tx_buffer_set(LED_DRV_SPI,
-                           (uint8_t*)(p_led_config->p_led_data),
-                           sizeof(p_led_config->p_led_data));
-
-    nrf_timer_task_trigger(LED_DRV_COUNTER, NRF_TIMER_TASK_CLEAR);
-    nrf_spim_shorts_enable(LED_DRV_SPI, NRF_SPIM_SHORT_END_START_MASK);
-
-    /* Start transmitting buffer */
-    nrf_spim_task_trigger(LED_DRV_SPI, NRF_SPIM_TASK_START);
-    while(!nrf_spim_event_check(LED_DRV_SPI, NRF_SPIM_EVENT_STARTED));
-    /* Wait until tx done */
-    while(!nrf_spim_event_check(LED_DRV_SPI, NRF_SPIM_EVENT_STOPPED));
-    nrf_spim_shorts_disable(LED_DRV_SPI, NRF_SPIM_SHORT_END_START_MASK);
+    /* Blocking write */
+    spi_write(spi, &spi_cfg, &spi_tx_buf_set);
 }
 
 void rgb_led_set_global_brightness(rgb_led_string_config_t* p_led_config,

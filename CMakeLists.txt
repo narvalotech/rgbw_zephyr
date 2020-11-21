@@ -5,4 +5,15 @@ find_package(Zephyr HINTS $ENV{ZEPHYR_BASE})
 
 project(rgbwatch)
 
-target_sources(app PRIVATE src/main.c)
+set(APP_SRC
+  src/main.c
+  src/rgb_led.c
+  )
+
+set(APP_INCLUDE
+  include
+  include/import
+  )
+
+target_sources(app PRIVATE ${APP_SRC})
+target_include_directories(app PRIVATE ${APP_INCLUDE})
