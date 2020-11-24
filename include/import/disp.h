@@ -4,8 +4,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-uint8_t display[4];
-
 #define DISPLAY_BCD 1
 #define DISPLAY_DIGITAL 2
 

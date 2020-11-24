@@ -10,6 +10,7 @@ project(rgbwatch)
 set(APP_SRC
   src/main.c
   src/rgb_led.c
+  src/import/disp.c
   )
 
 set(APP_INCLUDE

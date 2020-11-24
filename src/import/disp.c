@@ -1,10 +1,12 @@
+#include <zephyr.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
-#include "nrf_delay.h"
 #include "rgb_led.h"
 #include "disp.h"
 #include "alphabet.h"
+
+static uint8_t display[4];
 
 extern rgb_led_string_config_t led_cfg;
 rgb_led_string_config_t* p_led_cfg = &led_cfg;
@@ -16,7 +18,8 @@ typedef struct
 	uint32_t time;
 } fade_next_t;
 
-extern bool exitSignal;
+/* TODO: fix later */
+static bool exitSignal;
 
 fade_next_t fade;
 
@@ -175,7 +178,7 @@ void display_bytes(int top, int mid, int bot, uint16_t time_ms) {
 
 	display_refresh();
 	if(!time_ms) return;
-	nrf_delay_ms(time_ms);
+	k_msleep(time_ms);
 	display_clear();
 }
 
@@ -189,7 +192,7 @@ void display_bcd(uint16_t top, uint16_t mid, uint16_t bot, uint16_t time_ms) {
 
 	display_refresh();
 	if(!time_ms) return;
-	nrf_delay_ms(time_ms);
+	k_msleep(time_ms);
 	display_clear();
 }
 
@@ -201,14 +204,14 @@ void display_number(uint16_t num, uint16_t time_ms) {
 
 	display_refresh();
 	if(!time_ms) return;
-	nrf_delay_ms(time_ms);
+	k_msleep(time_ms);
 	display_clear();
 }
 
 int disp_delay_ms(uint32_t ms)
 {
 	for(uint32_t delay = 0; (delay < ms) && !exitSignal; delay += 10)
-		nrf_delay_ms(10);
+		k_msleep(10);
 	return exitSignal;
 }
 
@@ -269,7 +272,7 @@ void display_fade(bool dir, uint32_t fade_time)
 			display[3] = (uint8_t)(255 - ((255 * i) / fade_time));
 
 		display_refresh();
-		nrf_delay_ms(1);
+		k_msleep(1);
 	}
 
 	display[3] = 255;
@@ -300,7 +303,7 @@ void display_animate_slide(bool dir, uint32_t time)
 
 		for(int j=1; j < 16; j++)
 		{
-			nrf_delay_ms(time);
+			k_msleep(time);
 
 			/* Head */
 			if(j<8)
@@ -352,7 +355,7 @@ void display_animate_slide(bool dir, uint32_t time)
 
 		for(int j=14; j >= 0; j--)
 		{
-			nrf_delay_ms(time);
+			k_msleep(time);
 
 			/* Head */
 			if(j>7)
