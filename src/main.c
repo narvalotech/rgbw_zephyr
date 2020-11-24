@@ -22,11 +22,11 @@
 rgb_led_value_t led_data[30];
 rgb_led_string_config_t led_cfg =
 {
-    .p_led_data = led_data,
-    .led_num = 24,
-    .brightness = 1,
-    .pin_data = 0,
-    .pin_clock = 0,
+	.p_led_data = led_data,
+	.led_num = 24,
+	.brightness = 1,
+	.pin_data = 0,
+	.pin_clock = 0,
 };
 
 void main(void)
@@ -43,14 +43,14 @@ void main(void)
 	gpio_pin_set(dev, VDD_CTL, 1);
 	k_msleep(100);
 
-    rgb_led_init(&led_cfg);
-    display_init();
-    display_mono_set_color(0, 255, 0);
+	rgb_led_init(&led_cfg);
+	display_init();
+	display_mono_set_color(0, 255, 0);
 
-    display_clear();
-    display_animate_slide(0, 50*16);
+	display_clear();
+	display_animate_slide(0, 50*16);
 
-    display_clear();
+	display_clear();
 	display_mono_set_color(255, 0, 0);
 	display_string("hello world", 0, 50);
 
