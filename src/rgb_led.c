@@ -26,7 +26,7 @@ void s_bus_init(rgb_led_string_config_t* p_led_config)
 
     /* Store pointer to main buffer */
     spi_tx_buf.buf = p_led_config->p_led_data;
-    spi_tx_buf.len = sizeof(p_led_config->p_led_data);
+    spi_tx_buf.len = (p_led_config->led_num + 2) * 4;
 
     /* Init zephyr spi peripheral */
     spi = device_get_binding(DT_LABEL(DT_ALIAS(ledspi)));
@@ -38,7 +38,7 @@ void s_bus_init(rgb_led_string_config_t* p_led_config)
     spi_cfg.operation =
         SPI_OP_MODE_MASTER
         | SPI_TRANSFER_MSB
-        | SPI_WORD_SET(32);
+        | SPI_WORD_SET(8);
 }
 
 void rgb_led_init_gpio(rgb_led_string_config_t* p_led_config)
