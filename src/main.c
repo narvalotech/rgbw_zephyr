@@ -58,18 +58,29 @@ static void fetch_and_display(const struct device *sensor)
 	}
 }
 
-void main(void)
+static void enable_5v(bool enable)
 {
 	const struct device *dev;
-	int ret;
 
-	/* Get binding to gpio port */
-	/* Way too much boilerplate IMO */
 	dev = device_get_binding(DT_GPIO_LABEL(VDD_CTL_NODE, gpios));
-	ret = gpio_pin_configure(dev, VDD_CTL, GPIO_OUTPUT_ACTIVE | DT_GPIO_FLAGS(VDD_CTL_NODE, gpios));
 
-	gpio_pin_set(dev, VDD_CTL, 1);
-	k_msleep(100);
+	gpio_pin_configure(dev, VDD_CTL, GPIO_OUTPUT | DT_GPIO_FLAGS(VDD_CTL_NODE, gpios));
+
+	if(enable)
+	{
+		gpio_pin_set(dev, VDD_CTL, 1);
+		k_msleep(100);
+	}
+	else
+	{
+		gpio_pin_set(dev, VDD_CTL, 0);
+	}
+}
+
+void main(void)
+{
+
+	enable_5v(1);
 
 	rgb_led_init(&led_cfg);
 	display_init();
@@ -82,7 +93,7 @@ void main(void)
 	display_mono_set_color(255, 0, 0);
 	display_string("hello world", 0, 50);
 
-	gpio_pin_set(dev, VDD_CTL, 0);
+	enable_5v(0);
 
 	/* Test accelerometer */
 	/* Need to use pinmux interface to enable sensor VDD because drivers are
@@ -97,12 +108,6 @@ void main(void)
 	printk("Polling at 10 Hz\n");
 	while (true) {
 		fetch_and_display(sensor);
-		k_msleep(1000);
-	}
-
-	while(1)
-	{
-		/* Allow deferred logging */
 		k_msleep(1000);
 	}
 }
