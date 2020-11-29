@@ -14,6 +14,9 @@
 
 #define VDD_CTL_NODE DT_NODELABEL(eio0)
 #define VDD_CTL	     DT_GPIO_PIN(VDD_CTL_NODE, gpios)
+#define SW_0_PIN     DT_GPIO_PIN(DT_ALIAS(sw0), gpios) /* Lower left */
+#define SW_1_PIN     DT_GPIO_PIN(DT_ALIAS(sw1), gpios) /* Lower right */
+#define SW_2_PIN     DT_GPIO_PIN(DT_ALIAS(sw2), gpios) /* Upper right */
 
 /* Has to be led_num + 2 long to accomodate
     * start and end words */
@@ -77,9 +80,37 @@ static void enable_5v(bool enable)
 	}
 }
 
+static struct gpio_callback button_cb_data;
+
+void button_pressed(const struct device *dev, struct gpio_callback *cb,
+		    uint32_t pins)
+{
+	printk("Button pressed at %" PRIu32 "\n", k_cycle_get_32());
+}
+
+static void setup_buttons(void)
+{
+	const struct device *button;
+	button = device_get_binding(DT_GPIO_LABEL(DT_ALIAS(sw0), gpios));
+
+	gpio_pin_configure(button,
+			   SW_0_PIN,
+			   DT_GPIO_FLAGS(DT_ALIAS(sw0), gpios));
+
+	gpio_pin_interrupt_configure(button,
+				     SW_0_PIN,
+				     GPIO_INT_EDGE_TO_ACTIVE);
+
+	gpio_init_callback(&button_cb_data,
+			   button_pressed,
+			   BIT(SW_0_PIN));
+
+	gpio_add_callback(button, &button_cb_data);
+}
+
 void main(void)
 {
-
+	setup_buttons();
 	enable_5v(1);
 
 	rgb_led_init(&led_cfg);
