@@ -11,6 +11,7 @@
 #include <drivers/sensor.h>
 #include "rgb_led.h"
 #include "disp.h"
+#include "clock.h"
 
 #define VDD_CTL_NODE DT_NODELABEL(eio0)
 #define VDD_CTL	     DT_GPIO_PIN(VDD_CTL_NODE, gpios)
@@ -108,6 +109,33 @@ static void setup_buttons(void)
 	gpio_add_callback(button, &button_cb_data);
 }
 
+struct k_timer my_timer;
+static void my_expiry_function(struct k_timer *timer_id)
+{
+	clock_increment_seconds();
+}
+
+K_TIMER_DEFINE(my_timer, my_expiry_function, NULL);
+
+static void test_clock(void)
+{
+	/* Init clock module */
+	clock_time_init();
+	time_struct_t new_time = {1, 2, 3};
+	clock_set_time(new_time);
+	/* Updated time value pointer */
+	time_struct_t* p_time = clock_get_time_p();
+
+	k_timer_start(&my_timer, K_SECONDS(1), K_SECONDS(1));
+
+	/* Display time for 10 seconds */
+	for(int i=0; i<10; i++)
+	{
+		display_bcd(p_time->hours, p_time->minutes, p_time->seconds, 0);
+		k_timer_status_sync(&my_timer);
+	}
+}
+
 void main(void)
 {
 	setup_buttons();
@@ -123,6 +151,8 @@ void main(void)
 	display_clear();
 	display_mono_set_color(255, 0, 0);
 	display_string("hello world", 0, 50);
+
+	test_clock();
 
 	enable_5v(0);
 

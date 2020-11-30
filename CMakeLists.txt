@@ -17,6 +17,7 @@ set(APP_SRC
   src/main.c
   src/rgb_led.c
   src/import/disp.c
+  src/import/clock.c
   src/pinmux.c
   )
 
