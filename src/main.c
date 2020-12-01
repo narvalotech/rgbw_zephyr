@@ -86,7 +86,7 @@ static struct gpio_callback button_cb_data;
 void button_pressed(const struct device *dev, struct gpio_callback *cb,
 		    uint32_t pins)
 {
-	printk("Button pressed at %" PRIu32 "\n", k_cycle_get_32());
+	printk("Button pressed: 0x%x", pins);
 }
 
 static void setup_buttons(void)
@@ -102,9 +102,25 @@ static void setup_buttons(void)
 				     SW_0_PIN,
 				     GPIO_INT_EDGE_TO_ACTIVE);
 
+	gpio_pin_configure(button,
+			   SW_1_PIN,
+			   DT_GPIO_FLAGS(DT_ALIAS(sw1), gpios));
+
+	gpio_pin_interrupt_configure(button,
+				     SW_1_PIN,
+				     GPIO_INT_EDGE_TO_ACTIVE);
+
+	gpio_pin_configure(button,
+			   SW_2_PIN,
+			   DT_GPIO_FLAGS(DT_ALIAS(sw2), gpios));
+
+	gpio_pin_interrupt_configure(button,
+				     SW_2_PIN,
+				     GPIO_INT_EDGE_TO_ACTIVE);
+
 	gpio_init_callback(&button_cb_data,
 			   button_pressed,
-			   BIT(SW_0_PIN));
+			   BIT(SW_0_PIN) | BIT(SW_1_PIN) | BIT(SW_2_PIN));
 
 	gpio_add_callback(button, &button_cb_data);
 }
