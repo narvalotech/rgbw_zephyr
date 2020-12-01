@@ -125,14 +125,6 @@ static void setup_buttons(void)
 	gpio_add_callback(button, &button_cb_data);
 }
 
-struct k_timer my_timer;
-static void my_expiry_function(struct k_timer *timer_id)
-{
-	clock_increment_seconds();
-}
-
-K_TIMER_DEFINE(my_timer, my_expiry_function, NULL);
-
 static void test_clock(void)
 {
 	/* Init clock module */
@@ -142,13 +134,11 @@ static void test_clock(void)
 	/* Updated time value pointer */
 	time_struct_t* p_time = clock_get_time_p();
 
-	k_timer_start(&my_timer, K_SECONDS(1), K_SECONDS(1));
-
 	/* Display time for 10 seconds */
 	for(int i=0; i<10; i++)
 	{
 		display_bcd(p_time->hours, p_time->minutes, p_time->seconds, 0);
-		k_timer_status_sync(&my_timer);
+		clock_thread_sync();
 	}
 }
 

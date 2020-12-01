@@ -12,6 +12,6 @@ time_struct_t* clock_get_time_p();
 void clock_set_time(time_struct_t time);
 void clock_time_init();
 void clock_increment_seconds();
-void clock_rtc_poweroff();
+void clock_thread_sync();
 
 #endif
