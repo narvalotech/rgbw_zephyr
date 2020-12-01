@@ -1,77 +1,73 @@
-#include "board.h"
-#include "i2c.h"
-#include "accel.h"
+#include <zephyr.h>
+#include <device.h>
+#include <devicetree.h>
+#include <drivers/gpio.h>
 
-/**************** Accelerometer-related utility functions ****************/
-void acc_enable_orientation() {
-	acc_intgen_config(IG_6D_POS | I1_YL);  // Enable 'd' position detection
-	acc_intgen_duration(900);              // User has to stay in position for 500ms
-	acc_intgen_threshold(700);             // Set threshold to 0.9 G
-}
+#define VDD_CTL_NODE DT_NODELABEL(eio0)
+#define VDD_CTL	     DT_GPIO_PIN(VDD_CTL_NODE, gpios)
+#define SW_0_PIN     DT_GPIO_PIN(DT_ALIAS(sw0), gpios) /* Lower left */
+#define SW_1_PIN     DT_GPIO_PIN(DT_ALIAS(sw1), gpios) /* Lower right */
+#define SW_2_PIN     DT_GPIO_PIN(DT_ALIAS(sw2), gpios) /* Upper right */
 
-void acc_disable_orientation() {
-	acc_intgen_config(0);  // disable position detection
-}
-
-void acc_enable_hpf() {
-	acc_hpf_config(HP_MODE_NORMAL | HPCLICK); // Enable hpf on click only, fc = 1Hz @ fs=50Hz
-}
-
-void acc_disable_hpf() {
-	acc_hpf_config(0);
-}
-
-void acc_enable_click() {
-	acc_click_set(TAP_ZD, // Enable Z double-tap, X and Y single-tap
-				  800,                      // Tap-threshold is 0.3 G
-				  200,                      // Tap detected if acc_value decreases within 180ms
-				  80,                       // Pause 80ms before starting double-tap detection
-				  100);                     // User has to tap again withing 100 ms to register
-											// a double-tap
-}
-
-void acc_disable_4D() {
-	acc_write_reg(0x38, TAP_ZD); // Write tap_cfg
-}
-
-void acc_enable_4D() {
-	acc_write_reg(0x38, TAP_ZD | TAP_YS | TAP_XS); // Write tap_cfg
-}
-
-void acc_app_init() {
-	acc_init(PIN_ACC_SA0_LVL); // Init accelerometer
-	/* acc_lowpower(1);       // Set low-power mode */
-	acc_enable_orientation(); // Enable orientation detection
-	// acc_disable_orientation();
-	acc_enable_hpf();         // Enable high pass filter on click/tap detection
-	// acc_disable_hpf();
-	acc_enable_click();       // Enable click detection on 6 axes
-	acc_disable_4D();         // Enable only Z-axis double-click
-
-	acc_int1_sources(I1_CLICK); // Tap-detection interrupt on output 1
-	acc_int2_sources(I2_CLICK | I2_IG1 | I2_HLACTIVE);   // Orientation detection interrupt on output 2
-}
-
-/**************** Debug-related utility functions ****************/
-void dbg_led_init()
+extern void button_callback(const struct device *dev, struct gpio_callback *cb,
+			    uint32_t pins);
+static struct gpio_callback button_cb_data;
+static void setup_buttons(void)
 {
-    nrf_gpio_cfg_output(PIN_DBG_LED_0);
-    nrf_gpio_cfg_output(PIN_DBG_LED_1);
-    nrf_gpio_cfg_output(PIN_DBG_LED_2);
-    nrf_gpio_cfg_output(PIN_DBG_LED_3);
+	const struct device *button;
+	button = device_get_binding(DT_GPIO_LABEL(DT_ALIAS(sw0), gpios));
 
-    nrf_gpio_pin_set(PIN_DBG_LED_0);
-    nrf_gpio_pin_set(PIN_DBG_LED_1);
-    nrf_gpio_pin_set(PIN_DBG_LED_2);
-    nrf_gpio_pin_set(PIN_DBG_LED_3);
+	gpio_pin_configure(button,
+			   SW_0_PIN,
+			   DT_GPIO_FLAGS(DT_ALIAS(sw0), gpios));
+
+	gpio_pin_interrupt_configure(button,
+				     SW_0_PIN,
+				     GPIO_INT_EDGE_TO_ACTIVE);
+
+	gpio_pin_configure(button,
+			   SW_1_PIN,
+			   DT_GPIO_FLAGS(DT_ALIAS(sw1), gpios));
+
+	gpio_pin_interrupt_configure(button,
+				     SW_1_PIN,
+				     GPIO_INT_EDGE_TO_ACTIVE);
+
+	gpio_pin_configure(button,
+			   SW_2_PIN,
+			   DT_GPIO_FLAGS(DT_ALIAS(sw2), gpios));
+
+	gpio_pin_interrupt_configure(button,
+				     SW_2_PIN,
+				     GPIO_INT_EDGE_TO_ACTIVE);
+
+	gpio_init_callback(&button_cb_data,
+			   button_callback,
+			   BIT(SW_0_PIN) | BIT(SW_1_PIN) | BIT(SW_2_PIN));
+
+	gpio_add_callback(button, &button_cb_data);
 }
 
-void dbg_led_on(uint32_t led)
+void board_gpio_setup(void)
 {
-    nrf_gpio_pin_clear(led);
+	setup_buttons();
 }
 
-void dbg_led_off(uint32_t led)
+void enable_5v(bool enable)
 {
-    nrf_gpio_pin_set(led);
+	const struct device *dev;
+
+	dev = device_get_binding(DT_GPIO_LABEL(VDD_CTL_NODE, gpios));
+
+	gpio_pin_configure(dev, VDD_CTL, GPIO_OUTPUT | DT_GPIO_FLAGS(VDD_CTL_NODE, gpios));
+
+	if(enable)
+	{
+		gpio_pin_set(dev, VDD_CTL, 1);
+		k_msleep(100);
+	}
+	else
+	{
+		gpio_pin_set(dev, VDD_CTL, 0);
+	}
 }

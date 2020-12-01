@@ -19,6 +19,7 @@ set(APP_SRC
   src/import/disp.c
   src/import/clock.c
   src/pinmux.c
+  src/board.c
   )
 
 set(APP_INCLUDE
