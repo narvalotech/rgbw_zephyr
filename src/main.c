@@ -168,6 +168,7 @@ void main(void)
 	display_mono_set_color(255, 0, 0);
 	display_string("hello world", 0, 50);
 
+	display_mono_set_color(255, 160, 0);
 	test_clock();
 
 	enable_5v(0);
