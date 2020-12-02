@@ -49,11 +49,11 @@ static void fetch_and_display(const struct device *sensor)
 	if (rc < 0) {
 		printk("ERROR: Update failed: %d\n", rc);
 	} else {
-		printk("#%u @ %u ms: %sx %d , y %d , z %d\n",
+		printk("#%u @ %u ms: %sx %d.%d , y %d.%d , z %d.%d\n",
 		       count, k_uptime_get_32(), overrun,
-		       accel[0].val1,
-		       accel[1].val1,
-		       accel[2].val1);
+		       accel[0].val1, accel[0].val2,
+		       accel[1].val1, accel[1].val2,
+		       accel[2].val1, accel[2].val2);
 	}
 }
 
