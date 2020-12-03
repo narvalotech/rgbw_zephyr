@@ -70,6 +70,7 @@ void main(void)
 	test_clock();
 
 	/* Test accelerometer */
+	accel_init();
 	display_mono_set_color(86, 213, 245);
 	accel_test_tilt();
 
