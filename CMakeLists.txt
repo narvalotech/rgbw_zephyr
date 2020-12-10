@@ -19,6 +19,8 @@ set(APP_SRC
   src/import/disp.c
   src/import/clock.c
   src/import/accel.c
+  src/import/menu.c
+  src/import/settings.c
   src/pinmux.c
   src/board.c
   )

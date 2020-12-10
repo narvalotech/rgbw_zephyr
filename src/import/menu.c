@@ -15,15 +15,14 @@ Number selector function:
 
 */
 #include <stdint.h>
-#include "board.h"
 #include "disp.h"
+#include "state.h"
 #include "accel.h"
 
-extern uint8_t exitSignal;
-extern uint8_t tapStatus;
+#define ITEM_SCROLL_THR 305
+#define TILT_ANGLE_COMPENSATION (+122)
 
-#define ITEM_SCROLL_THR 5000
-#define TILT_ANGLE_COMPENSATION (+2000)
+extern struct g_state state;
 
 int abs(int val)
 {
@@ -36,21 +35,19 @@ int abs(int val)
 }
 
 uint16_t numberSelector(uint16_t defaultNum,
-						uint16_t startNum,
-						uint16_t endNum,
-						uint8_t displayType)
+			uint16_t startNum,
+			uint16_t endNum,
+			uint8_t displayType)
 {
 	uint32_t currentNumber = defaultNum;
 	int32_t accel;
-	// uint8_t tapStatus;
 	uint32_t dispTime = 1000;
+	int32_t acc_val[3] = {0};
 
 	// Clear previous tap events
-	acc_intgen_event();
-	acc_click_event();
-	tapStatus = 0;
+	state.tap_status = 0;
 
-	while(!exitSignal)
+	while(!state.exit_signal)
 	{
 		// Display current number
 		switch(displayType)
@@ -67,7 +64,8 @@ uint16_t numberSelector(uint16_t defaultNum,
 		}
 
 		// Get acceleration data
-		accel = acc_read_y();
+		accel_get_mg(acc_val);
+		accel = acc_val[1];
 		accel += TILT_ANGLE_COMPENSATION;
 
 		// Display time is proportional to tilt angle
@@ -76,9 +74,9 @@ uint16_t numberSelector(uint16_t defaultNum,
 			dispTime = 1450;	/* Take care of overflow */
 		dispTime = 1500 - dispTime;
 
-		if(tapStatus)
+		if(state.tap_status)
 		{
-			tapStatus = 0;
+			state.tap_status = 0;
 			return currentNumber;
 		}
 
@@ -100,7 +98,7 @@ uint16_t numberSelector(uint16_t defaultNum,
 
 	}
 
-	exitSignal = 0;
+	state.exit_signal = 0;
 
 	return currentNumber;
 }
