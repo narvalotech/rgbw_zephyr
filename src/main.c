@@ -8,11 +8,14 @@
 #include <device.h>
 #include <devicetree.h>
 #include <drivers/gpio.h>
+#include <string.h>
 #include "rgb_led.h"
 #include "disp.h"
 #include "clock.h"
 #include "board.h"
 #include "accel.h"
+#include "state.h"
+#include "settings.h"
 
 /* Has to be led_num + 2 long to accomodate
     * start and end words */
@@ -26,6 +29,7 @@ rgb_led_string_config_t led_cfg =
 	.pin_clock = 0,
 };
 
+struct g_state state;
 
 void button_callback(const struct device *dev, struct gpio_callback *cb,
 		     uint32_t pins)
@@ -52,6 +56,11 @@ static void test_clock(void)
 
 void main(void)
 {
+	/* Reset global state */
+	memset(&state, 0, sizeof(state));
+	/* Init accelerometer lib */
+	accel_init();
+
 	board_gpio_setup();
 	enable_5v(1);
 
@@ -66,11 +75,12 @@ void main(void)
 	display_mono_set_color(255, 0, 0);
 	display_string("hello world", 0, 50);
 
+	settings_time_set();
+
 	display_mono_set_color(255, 160, 0);
 	test_clock();
 
 	/* Test accelerometer */
-	accel_init();
 	display_mono_set_color(86, 213, 245);
 	accel_test_tilt();
 
