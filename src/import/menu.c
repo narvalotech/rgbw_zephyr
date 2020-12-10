@@ -14,13 +14,15 @@ Number selector function:
 	- accel up/down to select number, double-tap to select
 
 */
+#include <zephyr.h>
 #include <stdint.h>
 #include "disp.h"
 #include "state.h"
 #include "accel.h"
 
-#define ITEM_SCROLL_THR 305
-#define TILT_ANGLE_COMPENSATION (+122)
+#define ITEM_SCROLL_THR 2000
+#define TILT_ANGLE_COMPENSATION (+3000)
+#define ACCEL_INVERTED (-1)
 
 extern struct g_state state;
 
@@ -65,14 +67,14 @@ uint16_t numberSelector(uint16_t defaultNum,
 
 		// Get acceleration data
 		accel_get_mg(acc_val);
-		accel = acc_val[1];
+		accel = acc_val[1] * ACCEL_INVERTED;
 		accel += TILT_ANGLE_COMPENSATION;
 
 		// Display time is proportional to tilt angle
-		dispTime = abs(accel) / 12;
-		if(dispTime > 1450)
-			dispTime = 1450;	/* Take care of overflow */
-		dispTime = 1500 - dispTime;
+		dispTime = abs(accel) / 7;
+		if(dispTime > 900)
+			dispTime = 900;	/* Take care of overflow */
+		dispTime = 1000 - dispTime;
 
 		if(state.tap_status)
 		{
