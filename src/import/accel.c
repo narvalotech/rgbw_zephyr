@@ -62,7 +62,7 @@ int accel_get_mg(int32_t accel[3])
 					val);
 		for(int i=0; i<3; i++)
 		{
-			accel[i] = val[i].val1 * 100 + (val[i].val2 * 0.001);
+			accel[i] = val[i].val1 * 1000 + (val[i].val2 * 0.001);
 		}
 	}
 	return rc;
