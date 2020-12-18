@@ -46,8 +46,8 @@ uint16_t numberSelector(uint16_t defaultNum,
 	uint32_t dispTime = 1000;
 	int32_t acc_val[3] = {0};
 
-	// Clear previous tap events
-	state.tap_status = 0;
+	state.select = 0;
+	state.exit_signal = 0;
 
 	while(!state.exit_signal)
 	{
@@ -76,9 +76,9 @@ uint16_t numberSelector(uint16_t defaultNum,
 			dispTime = 900;	/* Take care of overflow */
 		dispTime = 1000 - dispTime;
 
-		if(state.tap_status)
+		if(state.select)
 		{
-			state.tap_status = 0;
+			state.select = 0;
 			return currentNumber;
 		}
 
@@ -97,7 +97,6 @@ uint16_t numberSelector(uint16_t defaultNum,
 			else 
 				currentNumber = endNum;
 		}
-
 	}
 
 	state.exit_signal = 0;
