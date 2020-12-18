@@ -70,13 +70,14 @@ void main(void)
 	display_string("hello world", 0, 50);
 
 	settings_time_set();
-
+	if(state.main)
+	{
+		/* Test accelerometer */
+		display_mono_set_color(86, 213, 245);
+		accel_test_tilt();
+	}
 	display_mono_set_color(255, 160, 0);
 	test_clock();
-
-	/* Test accelerometer */
-	display_mono_set_color(86, 213, 245);
-	accel_test_tilt();
 
 	enable_5v(0);
 	return;
