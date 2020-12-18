@@ -5,11 +5,8 @@
 #include "rgb_led.h"
 #include "disp.h"
 #include "alphabet.h"
+#include "state.h"
 
-static uint8_t display[4];
-
-extern rgb_led_string_config_t led_cfg;
-rgb_led_string_config_t* p_led_cfg = &led_cfg;
 typedef struct
 {
 	bool pending;
@@ -18,12 +15,12 @@ typedef struct
 	uint32_t time;
 } fade_next_t;
 
-/* TODO: fix later */
-static bool exitSignal;
-
-fade_next_t fade;
-
-uint8_t disp_color[3];
+static uint8_t display[4];
+static uint8_t disp_color[3];
+extern rgb_led_string_config_t led_cfg;
+static rgb_led_string_config_t* p_led_cfg = &led_cfg;
+extern struct g_state state;
+static fade_next_t fade;
 
 static bool s_pixel_here(uint8_t col, uint8_t line)
 {
@@ -210,9 +207,16 @@ void display_number(uint16_t num, uint16_t time_ms) {
 
 int disp_delay_ms(uint32_t ms)
 {
-	for(uint32_t delay = 0; (delay < ms) && !exitSignal; delay += 10)
+	for(uint32_t delay = 0; (delay < ms) && !state.abort_disp; delay += 10)
 		k_msleep(10);
-	return exitSignal;
+
+	if(state.abort_disp)
+	{
+		state.abort_disp = 0;
+		return 1;
+	}
+
+	return 0;
 }
 
 void display_string(char* string, uint16_t repeat, uint16_t scrollspeed) {
