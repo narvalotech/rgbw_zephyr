@@ -2,6 +2,7 @@
 #include <device.h>
 #include <devicetree.h>
 #include <drivers/gpio.h>
+#include "state.h"
 
 #define VDD_CTL_NODE DT_NODELABEL(eio0)
 #define VDD_CTL	     DT_GPIO_PIN(VDD_CTL_NODE, gpios)
@@ -9,8 +10,27 @@
 #define SW_1_PIN     DT_GPIO_PIN(DT_ALIAS(sw1), gpios) /* Lower right */
 #define SW_2_PIN     DT_GPIO_PIN(DT_ALIAS(sw2), gpios) /* Upper right */
 
-extern void button_callback(const struct device *dev, struct gpio_callback *cb,
-			    uint32_t pins);
+extern struct g_state state;
+
+void button_callback(const struct device *dev, struct gpio_callback *cb,
+		     uint32_t pins)
+{
+	if (pins & (1 << SW_0_PIN))
+	{
+		state.select = 1;
+	}
+	if (pins & (1 << SW_1_PIN))
+	{
+		state.exit_signal = 1;
+		state.main = 1;
+	}
+	if (pins & (1 << SW_2_PIN))
+	{
+		state.exit_signal = 1;
+		state.abort_disp = 1;
+	}
+}
+
 static struct gpio_callback button_cb_data;
 static void setup_buttons(void)
 {

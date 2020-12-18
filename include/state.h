@@ -2,11 +2,11 @@
 #define __STATE_H_
 
 struct g_state {
+	bool main;		/* Go back to main screen */
 	bool exit_signal;	/* Exit current activity */
 	bool abort_disp;	/* Abort scrolling string display */
 	bool hibernate;		/* Hibernate ASAP */
-	bool tap_status;	/* Accel has received TAP event */
-	uint8_t button_pressed;	/* Pushbutton has been pressed */
+	bool select;		/* User has selected current item */
 };
 
 #endif // __STATE_H_

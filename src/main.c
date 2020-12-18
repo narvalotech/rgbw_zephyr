@@ -31,12 +31,6 @@ rgb_led_string_config_t led_cfg =
 
 struct g_state state;
 
-void button_callback(const struct device *dev, struct gpio_callback *cb,
-		     uint32_t pins)
-{
-	printk("Button pressed: 0x%x", pins);
-}
-
 static void test_clock(void)
 {
 	/* Init clock module */
