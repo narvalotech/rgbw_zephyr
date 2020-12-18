@@ -15,7 +15,7 @@
 #include "board.h"
 #include "accel.h"
 #include "state.h"
-#include "settings.h"
+#include "screen.h"
 
 /* Has to be led_num + 2 long to accomodate
     * start and end words */
@@ -69,7 +69,7 @@ void main(void)
 	display_mono_set_color(255, 0, 0);
 	display_string("hello world", 0, 50);
 
-	settings_time_set();
+	screen_time_set();
 	if(state.main)
 	{
 		/* Test accelerometer */

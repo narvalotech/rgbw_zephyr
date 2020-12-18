@@ -20,7 +20,7 @@ set(APP_SRC
   src/import/clock.c
   src/import/accel.c
   src/import/menu.c
-  src/import/settings.c
+  src/import/screen.c
   src/pinmux.c
   src/board.c
   )

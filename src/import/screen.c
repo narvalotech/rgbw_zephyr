@@ -6,14 +6,14 @@
 #include "disp.h"
 #include "menu.h"
 #include "state.h"
-#include "settings.h"
+#include "screen.h"
 
 extern struct g_state state;
 
 #define SCROLL_SPEED 50
 #define DISP_DELAY 200
 
-void settings_time_set(void)
+void screen_time_set(void)
 {
 	time_struct_t newTime;
 
