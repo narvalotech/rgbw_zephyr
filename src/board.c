@@ -17,15 +17,18 @@ void button_callback(const struct device *dev, struct gpio_callback *cb,
 {
 	if (pins & (1 << SW_0_PIN))
 	{
+		state.but_ll = 1;
 		state.select = 1;
 	}
 	if (pins & (1 << SW_1_PIN))
 	{
+		state.but_lr = 1;
 		state.exit_signal = 1;
 		state.main = 1;
 	}
 	if (pins & (1 << SW_2_PIN))
 	{
+		state.but_ur = 1;
 		state.exit_signal = 1;
 		state.abort_disp = 1;
 	}
