@@ -1,6 +1,8 @@
 #ifndef __STOPWATCH_H_
 #define __STOPWATCH_H_
 
+#include <stdint.h>
+
 typedef enum {
     STW_STOPPED = 0,
     STW_STARTED,
