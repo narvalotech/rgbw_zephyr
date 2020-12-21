@@ -23,6 +23,7 @@ set(APP_SRC
   src/import/screen.c
   src/pinmux.c
   src/board.c
+  src/stopwatch.c
   )
 
 set(APP_INCLUDE

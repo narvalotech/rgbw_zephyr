@@ -7,6 +7,7 @@
 #include "menu.h"
 #include "state.h"
 #include "screen.h"
+#include "stopwatch.h"
 
 extern struct g_state state;
 
@@ -50,4 +51,39 @@ void screen_time_set(void)
 
 	clock_set_time(newTime);
 	display_string("  success  ",0,SCROLL_SPEED);
+}
+
+void screen_stopwatch(void)
+{
+	uint32_t time = 0;
+	display_clear();
+	display_string("stopwatch", 0, SCROLL_SPEED);
+	k_msleep(DISP_DELAY);
+
+	while(state.exit_signal || state.main)
+	{
+		if(state.but_ll)
+		{
+			state.but_ll = 0;
+			stopwatch_toggle(0);
+		}
+		if(state.but_ur)
+		{
+			state.but_ur = 0;
+			if(stopwatch_state_get(0) == STW_STOPPED)
+			{
+				stopwatch_reset(0);
+			}
+		}
+
+		time = stopwatch_ms_get(0);
+		display_bcd(time / (60 * 60 * 1000), /* Hours */
+			    time / (60 * 1000),	     /* Minutes */
+			    time / 1000, 0);	     /* Seconds */
+		stopwatch_thread_sync(0);
+	}
+
+	state.select = 0;
+	state.exit_signal = 0;
+	display_clear();
 }
