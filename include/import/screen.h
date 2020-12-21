@@ -5,6 +5,7 @@
 #define SCREEN_H_
 
 void screen_time_set(void);
+void screen_clock_bcd(void);
 void screen_stopwatch(void);
 
 #endif

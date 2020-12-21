@@ -63,6 +63,19 @@ void screen_time_set(void)
 
 	state_clear();
 }
+
+void screen_clock_bcd(void)
+{
+	/* Live time value pointer */
+	time_struct_t* p_time = clock_get_time_p();
+
+	while(state.exit_signal || state.main)
+	{
+		display_bcd(p_time->hours, p_time->minutes, p_time->seconds, 0);
+		clock_thread_sync();
+	}
+
+	state_clear();
 }
 
 void screen_stopwatch(void)
