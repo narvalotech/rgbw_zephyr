@@ -12,4 +12,6 @@ struct g_state {
 	bool but_ur;		/* Upper right button pressed */
 };
 
+void state_clear(void);
+
 #endif // __STATE_H_

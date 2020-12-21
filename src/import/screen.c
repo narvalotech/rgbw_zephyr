@@ -24,7 +24,7 @@ void screen_time_set(void)
 
 	if(state.exit_signal)
 	{
-		state.exit_signal = 0;
+		state_clear();
 		return;  
 	}
 
@@ -32,25 +32,37 @@ void screen_time_set(void)
 	k_msleep(DISP_DELAY);
 	newTime.hours = (uint8_t)numberSelector(12, 0, 23, DISPLAY_DIGITAL);
 	if(state.main)
+	{
+		state_clear();
 		return;
+	}
 	k_msleep(DISP_DELAY);
 
 	display_string("  minutes",0,SCROLL_SPEED);
 	k_msleep(DISP_DELAY);
 	newTime.minutes = (uint8_t)numberSelector(0, 0, 59, DISPLAY_DIGITAL);
 	if(state.main)
+	{
+		state_clear();
 		return;
+	}
 	k_msleep(DISP_DELAY);
 
 	display_string("  seconds",0,SCROLL_SPEED);
 	k_msleep(DISP_DELAY);
 	newTime.seconds = (uint8_t)numberSelector(0, 0, 59, DISPLAY_DIGITAL);
 	if(state.main)
+	{
+		state_clear();
 		return;
+	}
 	k_msleep(DISP_DELAY);
 
 	clock_set_time(newTime);
 	display_string("  success  ",0,SCROLL_SPEED);
+
+	state_clear();
+}
 }
 
 void screen_stopwatch(void)
@@ -83,7 +95,6 @@ void screen_stopwatch(void)
 		stopwatch_thread_sync(0);
 	}
 
-	state.select = 0;
-	state.exit_signal = 0;
+	state_clear();
 	display_clear();
 }
