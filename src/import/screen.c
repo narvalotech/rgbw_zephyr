@@ -8,6 +8,7 @@
 #include "state.h"
 #include "screen.h"
 #include "stopwatch.h"
+#include "accel.h"
 
 extern struct g_state state;
 
@@ -106,6 +107,54 @@ void screen_stopwatch(void)
 			    time / (60 * 1000),	     /* Minutes */
 			    time / 1000, 0);	     /* Seconds */
 		stopwatch_thread_sync(0);
+	}
+
+	state_clear();
+	display_clear();
+}
+
+void screen_test_tilt(void)
+{
+	#define TEST_TILT_THRESHOLD 300
+
+	uint8_t display[4] = {0};
+	int32_t accel[3];
+
+	while(state.exit_signal || state.main)
+	{
+		accel_get_mg(accel);
+
+		if(accel[0] < -TEST_TILT_THRESHOLD) {
+			display[0] = 0b01100000;
+			display[1] = 0b01100000;
+			display[2] = 0b01100000;
+		}
+		else if(accel[0] > TEST_TILT_THRESHOLD) {
+			display[0] = 0b00000110;
+			display[1] = 0b00000110;
+			display[2] = 0b00000110;
+		}
+		else {
+			display[0] = 0b00011000;
+			display[1] = 0b00011000;
+			display[2] = 0b00011000;
+		}
+
+		if(accel[1] > TEST_TILT_THRESHOLD) {
+			display[1] = 0;
+			display[2] = 0;
+		}
+		else if(accel[1] < -TEST_TILT_THRESHOLD) {
+			display[0] = 0;
+			display[1] = 0;
+		}
+		else {
+			display[0] = 0;
+			display[2] = 0;
+		}
+
+		display_bytes(display[0], display[1], display[2], 0);
+		k_msleep(100);
 	}
 
 	state_clear();

@@ -1,9 +1,3 @@
-/*
- * Copyright (c) 2016 Intel Corporation
- *
- * SPDX-License-Identifier: Apache-2.0
- */
-
 #include <zephyr.h>
 #include <device.h>
 #include <devicetree.h>
@@ -58,15 +52,10 @@ void main(void)
 	display_mono_set_color(255, 0, 0);
 	display_string("hello world", 0, 50);
 
-	screen_time_set();
-	if(state.main)
+	while(state.pgm_state != PGM_STATE_HIBERNATE)
 	{
-		/* Test accelerometer */
-		display_mono_set_color(86, 213, 245);
-		accel_test_tilt();
+		main_state_loop();
 	}
-	display_mono_set_color(255, 160, 0);
-	screen_clock_bcd();
 
 	enable_5v(0);
 	return;
