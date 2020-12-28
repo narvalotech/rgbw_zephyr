@@ -14,6 +14,7 @@ void state_clear(void)
 	state.but_ll = 0;
 	state.but_lr = 0;
 	state.but_ur = 0;
+	state.but_long_press = 0;
 }
 
 void main_state_set(pgm_state_t new_state)

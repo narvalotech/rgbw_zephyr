@@ -93,7 +93,7 @@ void screen_stopwatch(void)
 			state.but_ur = 0;
 			stopwatch_toggle(0);
 		}
-		if(state.but_ll)
+		if(state.but_ll == 1)
 		{
 			state.but_ll = 0;
 			if(stopwatch_state_get(0) == STW_STOPPED)

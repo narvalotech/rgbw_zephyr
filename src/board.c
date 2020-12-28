@@ -12,29 +12,57 @@
 
 extern struct g_state state;
 
-void button_callback(const struct device *dev, struct gpio_callback *cb,
-		     uint32_t pins)
+static void button_timer_callback(struct k_timer *timer_id)
 {
+	state.but_long_press = 1;
+}
+K_TIMER_DEFINE(button_timer, button_timer_callback, NULL);
+
+static void button_callback(const struct device *dev, struct gpio_callback *cb,
+			    uint32_t pins)
+{
+	gpio_port_value_t port_val = 0;
+
+	/* All pushbuttons are on the same port */
+	dev = device_get_binding(DT_GPIO_LABEL(DT_ALIAS(sw0), gpios));
+	gpio_port_get(dev, &port_val);
+
+	if(port_val == 0) {
+		/* Abort running timer */
+		k_timer_stop(&button_timer);
+	}
+	else {
+		/* One-shot timer */
+		k_timer_start(&button_timer, K_SECONDS(1), K_NO_WAIT);
+		return;
+	}
+
 	if (pins & (1 << SW_0_PIN))
 	{
-		state.but_ll = 1;
-		/* TODO: trigger this only on long press */
-		state.abort_disp = 1;  /* Aborts scrolling text */
-		state.exit_signal = 1; /* Exits current activity */
-		/* Should go to next screen/state */
+		if(state.but_long_press) {
+			state.but_ll = 2;
+			/* Go to main screen immediately */
+			state.main = 1;
+			state.abort_disp = 1;  /* Aborts scrolling text */
+			state.exit_signal = 1; /* Exits current activity */
+		}
+		else {
+			state.but_ll = 1;
+		}
 	}
 	if (pins & (1 << SW_1_PIN))
 	{
 		state.but_lr = 1;
-		/* Go to main screen immediately */
-		state.main = 1;
-		state.abort_disp = 1;  /* Aborts scrolling text */
-		state.exit_signal = 1; /* Exits current activity */
 	}
 	if (pins & (1 << SW_2_PIN))
 	{
-		state.but_ur = 1;
-		state.select = 1;
+		if(state.but_long_press) {
+			state.but_ur = 2;
+		}
+		else {
+			state.but_ur = 1;
+			state.select = 1;
+		}
 	}
 }
 
@@ -50,7 +78,7 @@ static void setup_buttons(void)
 
 	gpio_pin_interrupt_configure(button,
 				     SW_0_PIN,
-				     GPIO_INT_EDGE_TO_ACTIVE);
+				     GPIO_INT_EDGE_BOTH);
 
 	gpio_pin_configure(button,
 			   SW_1_PIN,
@@ -58,7 +86,7 @@ static void setup_buttons(void)
 
 	gpio_pin_interrupt_configure(button,
 				     SW_1_PIN,
-				     GPIO_INT_EDGE_TO_ACTIVE);
+				     GPIO_INT_EDGE_BOTH);
 
 	gpio_pin_configure(button,
 			   SW_2_PIN,
@@ -66,7 +94,7 @@ static void setup_buttons(void)
 
 	gpio_pin_interrupt_configure(button,
 				     SW_2_PIN,
-				     GPIO_INT_EDGE_TO_ACTIVE);
+				     GPIO_INT_EDGE_BOTH);
 
 	gpio_init_callback(&button_cb_data,
 			   button_callback,
