@@ -18,19 +18,23 @@ void button_callback(const struct device *dev, struct gpio_callback *cb,
 	if (pins & (1 << SW_0_PIN))
 	{
 		state.but_ll = 1;
-		state.select = 1;
+		/* TODO: trigger this only on long press */
+		state.abort_disp = 1;  /* Aborts scrolling text */
+		state.exit_signal = 1; /* Exits current activity */
+		/* Should go to next screen/state */
 	}
 	if (pins & (1 << SW_1_PIN))
 	{
 		state.but_lr = 1;
-		state.exit_signal = 1;
+		/* Go to main screen immediately */
 		state.main = 1;
+		state.abort_disp = 1;  /* Aborts scrolling text */
+		state.exit_signal = 1; /* Exits current activity */
 	}
 	if (pins & (1 << SW_2_PIN))
 	{
 		state.but_ur = 1;
-		state.exit_signal = 1;
-		state.abort_disp = 1;
+		state.select = 1;
 	}
 }
 

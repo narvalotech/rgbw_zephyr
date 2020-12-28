@@ -23,7 +23,7 @@ void screen_time_set(void)
 	display_string("set time",0,SCROLL_SPEED);
 	k_msleep(DISP_DELAY);
 
-	if(state.exit_signal)
+	if(state.exit_signal || state.main)
 	{
 		state_clear();
 		return;  
@@ -88,14 +88,14 @@ void screen_stopwatch(void)
 
 	while(state.exit_signal || state.main)
 	{
-		if(state.but_ll)
-		{
-			state.but_ll = 0;
-			stopwatch_toggle(0);
-		}
 		if(state.but_ur)
 		{
 			state.but_ur = 0;
+			stopwatch_toggle(0);
+		}
+		if(state.but_ll)
+		{
+			state.but_ll = 0;
 			if(stopwatch_state_get(0) == STW_STOPPED)
 			{
 				stopwatch_reset(0);
