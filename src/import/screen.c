@@ -21,6 +21,7 @@ void screen_time_set(void)
 {
 	time_struct_t newTime;
 
+	display_mono_set_color(255, 0, 0);
 	display_clear();
 	display_string("set time",0,SCROLL_SPEED);
 	k_msleep(DISP_DELAY);
@@ -69,6 +70,8 @@ void screen_time_set(void)
 
 void screen_clock_bcd(void)
 {
+	display_mono_set_color(255, 160, 0);
+
 	/* Live time value pointer */
 	time_struct_t* p_time = clock_get_time_p();
 
@@ -95,6 +98,7 @@ void screen_clock_bcd(void)
 void screen_stopwatch(void)
 {
 	display_clear();
+	display_mono_set_color(0, 255, 0);
 	display_string("stw", 0, SCROLL_SPEED);
 	k_msleep(DISP_DELAY);
 
@@ -138,6 +142,8 @@ void screen_test_tilt(void)
 
 	uint8_t display[4] = {0};
 	int32_t accel[3];
+
+	display_mono_set_color(86, 213, 245);
 
 	while(!state.exit_signal && !state.main)
 	{
