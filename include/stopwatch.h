@@ -19,5 +19,8 @@ stopwatch_state_t stopwatch_toggle(uint8_t channel);
 stopwatch_state_t stopwatch_state_get(uint8_t channel);
 
 uint32_t stopwatch_ms_get(uint8_t channel);
+uint8_t stopwatch_minutes_get(uint8_t channel);
+uint8_t stopwatch_seconds_get(uint8_t channel);
+uint8_t stopwatch_cents_get(uint8_t channel);
 
 #endif // __STOPWATCH_H_

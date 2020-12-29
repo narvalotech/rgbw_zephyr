@@ -84,9 +84,8 @@ void screen_clock_bcd(void)
 
 void screen_stopwatch(void)
 {
-	uint32_t time = 0;
 	display_clear();
-	display_string("stopwatch", 0, SCROLL_SPEED);
+	display_string("stw", 0, SCROLL_SPEED);
 	k_msleep(DISP_DELAY);
 
 	while(!state.exit_signal && !state.main)
@@ -102,14 +101,21 @@ void screen_stopwatch(void)
 			if(stopwatch_state_get(0) == STW_STOPPED)
 			{
 				stopwatch_reset(0);
+				display_clear();
 			}
 		}
 
-		time = stopwatch_ms_get(0);
-		display_bcd(time / (60 * 60 * 1000), /* Hours */
-			    time / (60 * 1000),	     /* Minutes */
-			    time / 1000, 0);	     /* Seconds */
-		stopwatch_thread_sync(0);
+		if(stopwatch_state_get(0) == STW_STARTED)
+		{
+			display_bcd(stopwatch_minutes_get(0),
+				stopwatch_seconds_get(0),
+				stopwatch_cents_get(0),
+				0);
+			stopwatch_thread_sync(0);
+		}
+		else {
+			k_sleep(K_MSEC(10));
+		}
 	}
 
 	state_clear();
