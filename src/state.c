@@ -53,7 +53,7 @@ void main_state_loop(void)
 			break;
 		case PGM_STATE_CLOCK_SET:
 			screen_time_set();
-			main_state_set(PGM_STATE_CLOCK_BCD);
+			main_state_set(PGM_STATE_TEST_TILT);
 			break;
 		case PGM_STATE_CHARGE:
 			/* TODO: add charging screen */
