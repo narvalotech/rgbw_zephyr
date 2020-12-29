@@ -40,6 +40,7 @@ static void button_callback(const struct device *dev, struct gpio_callback *cb,
 	if (pins & (1 << SW_0_PIN))
 	{
 		if(state.but_long_press) {
+			state.but_long_press = 0;
 			state.but_ll = 2;
 			/* Go to main screen immediately */
 			state.main = 1;
@@ -48,15 +49,19 @@ static void button_callback(const struct device *dev, struct gpio_callback *cb,
 		}
 		else {
 			state.but_ll = 1;
+			state.abort_disp = 1;  /* Aborts scrolling text */
+			state.exit_signal = 1; /* Exits current activity */
 		}
 	}
 	if (pins & (1 << SW_1_PIN))
 	{
+		state.but_long_press = 0;
 		state.but_lr = 1;
 	}
 	if (pins & (1 << SW_2_PIN))
 	{
 		if(state.but_long_press) {
+			state.but_long_press = 0;
 			state.but_ur = 2;
 		}
 		else {

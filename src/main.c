@@ -50,8 +50,11 @@ void main(void)
 
 	display_clear();
 	display_mono_set_color(255, 0, 0);
-	display_string("hello world", 0, 50);
+	display_string("hello", 0, 50);
 
+	display_mono_set_color(255, 160, 0);
+
+	main_state_set(PGM_STATE_TEST_TILT);
 	while(state.pgm_state != PGM_STATE_HIBERNATE)
 	{
 		main_state_loop();

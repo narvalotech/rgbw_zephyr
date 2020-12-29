@@ -21,9 +21,11 @@ void main_state_set(pgm_state_t new_state)
 {
 	if(state.main) {
 		state.pgm_state = PGM_STATE_CLOCK_BCD;
+		state.main = 0;
 	}
 	else if(state.hibernate) {
 		state.pgm_state = PGM_STATE_HIBERNATE;
+		state.hibernate = 0;
 	}
 	else {
 		state.pgm_state = new_state;

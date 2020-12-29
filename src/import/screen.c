@@ -70,7 +70,10 @@ void screen_clock_bcd(void)
 	/* Live time value pointer */
 	time_struct_t* p_time = clock_get_time_p();
 
-	while(state.exit_signal || state.main)
+	display_clear();
+	display_string("clock", 0, SCROLL_SPEED);
+
+	while(!state.exit_signal && !state.main)
 	{
 		display_bcd(p_time->hours, p_time->minutes, p_time->seconds, 0);
 		clock_thread_sync();
@@ -86,16 +89,16 @@ void screen_stopwatch(void)
 	display_string("stopwatch", 0, SCROLL_SPEED);
 	k_msleep(DISP_DELAY);
 
-	while(state.exit_signal || state.main)
+	while(!state.exit_signal && !state.main)
 	{
 		if(state.but_ur)
 		{
 			state.but_ur = 0;
 			stopwatch_toggle(0);
 		}
-		if(state.but_ll == 1)
+		if(state.but_lr == 1)
 		{
-			state.but_ll = 0;
+			state.but_lr = 0;
 			if(stopwatch_state_get(0) == STW_STOPPED)
 			{
 				stopwatch_reset(0);
@@ -120,7 +123,7 @@ void screen_test_tilt(void)
 	uint8_t display[4] = {0};
 	int32_t accel[3];
 
-	while(state.exit_signal || state.main)
+	while(!state.exit_signal && !state.main)
 	{
 		accel_get_mg(accel);
 
