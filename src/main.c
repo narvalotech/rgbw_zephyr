@@ -39,7 +39,7 @@ void main(void)
 	accel_init();
 
 	board_gpio_setup();
-	enable_5v(1);
+	board_enable_5v(1);
 
 	rgb_led_init(&led_cfg);
 	display_init();
@@ -60,6 +60,6 @@ void main(void)
 		main_state_loop();
 	}
 
-	enable_5v(0);
+	board_enable_5v(0);
 	return;
 }

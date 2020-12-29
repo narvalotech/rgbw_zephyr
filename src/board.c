@@ -113,7 +113,7 @@ void board_gpio_setup(void)
 	setup_buttons();
 }
 
-void enable_5v(bool enable)
+void board_enable_5v(bool enable)
 {
 	const struct device *dev;
 
