@@ -75,14 +75,18 @@ void screen_clock_bcd(void)
 	display_clear();
 	display_string("clock", 0, SCROLL_SPEED);
 
+	int i = 0;
+
 	while(!state.exit_signal && !state.main)
 	{
-		for(int i=0; i < SLEEP_TIMEOUT; i++)
+		i++;
+		if(i >= SLEEP_TIMEOUT)
 		{
-			display_bcd(p_time->hours, p_time->minutes, p_time->seconds, 0);
-			clock_thread_sync();
+			i = 0;
+			board_suspend();
 		}
-		board_suspend();
+		display_bcd(p_time->hours, p_time->minutes, p_time->seconds, 0);
+		clock_thread_sync();
 	}
 
 	state_clear();
