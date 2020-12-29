@@ -2,18 +2,20 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "screen.h"
 #include "clock.h"
 #include "disp.h"
 #include "menu.h"
 #include "state.h"
-#include "screen.h"
 #include "stopwatch.h"
 #include "accel.h"
+#include "board.h"
 
 extern struct g_state state;
 
 #define SCROLL_SPEED 50
 #define DISP_DELAY 200
+#define SLEEP_TIMEOUT 10
 
 void screen_time_set(void)
 {
@@ -75,8 +77,12 @@ void screen_clock_bcd(void)
 
 	while(!state.exit_signal && !state.main)
 	{
-		display_bcd(p_time->hours, p_time->minutes, p_time->seconds, 0);
-		clock_thread_sync();
+		for(int i=0; i < SLEEP_TIMEOUT; i++)
+		{
+			display_bcd(p_time->hours, p_time->minutes, p_time->seconds, 0);
+			clock_thread_sync();
+		}
+		board_suspend();
 	}
 
 	state_clear();

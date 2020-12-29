@@ -29,6 +29,8 @@ void main(void)
 {
 	/* Reset global state */
 	memset(&state, 0, sizeof(state));
+	/* Store main thread ID */
+	state.main_tid = k_current_get();
 
 	/* Init clock module */
 	clock_time_init();

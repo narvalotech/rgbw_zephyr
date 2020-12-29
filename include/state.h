@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <kernel.h>
 
 typedef enum {
 	PGM_STATE_TEST_TILT,
@@ -15,6 +16,7 @@ typedef enum {
 } pgm_state_t;
 
 struct g_state {
+	k_tid_t main_tid;	/* Main thread ID */
 	pgm_state_t pgm_state;	/* Current program state */
 	bool main;		/* Go back to main screen */
 	bool exit_signal;	/* Exit current activity */

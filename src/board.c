@@ -2,7 +2,10 @@
 #include <device.h>
 #include <devicetree.h>
 #include <drivers/gpio.h>
+#include "board.h"
 #include "state.h"
+#include "disp.h"
+#include "clock.h"
 
 #define VDD_CTL_NODE DT_NODELABEL(eio0)
 #define VDD_CTL	     DT_GPIO_PIN(VDD_CTL_NODE, gpios)
@@ -11,6 +14,39 @@
 #define SW_2_PIN     DT_GPIO_PIN(DT_ALIAS(sw2), gpios) /* Upper right */
 
 extern struct g_state state;
+
+void board_suspend(void)
+{
+	const struct device *spi =
+		device_get_binding(DT_LABEL(DT_ALIAS(ledspi)));
+	const struct device *i2c =
+		device_get_binding(DT_BUS_LABEL(DT_NODELABEL(accel)));
+
+	/* Kill display power */
+	display_clear();
+	board_enable_5v(0);
+
+	/* Disable comm peripherals */
+	device_set_power_state(spi, DEVICE_PM_LOW_POWER_STATE, NULL, NULL);
+	device_set_power_state(i2c, DEVICE_PM_LOW_POWER_STATE, NULL, NULL);
+
+	/* Put clock counter into low-power mode */
+
+	/* Put CPU to sleep until interrupted */
+	k_sleep(K_FOREVER);
+
+	/* Re-enable/init comm peripherals */
+	device_set_power_state(spi, DEVICE_PM_ACTIVE_STATE, NULL, NULL);
+	device_set_power_state(i2c, DEVICE_PM_ACTIVE_STATE, NULL, NULL);
+
+	/* Put clock counter into low-latency mode */
+
+	/* Restore display power */
+	board_enable_5v(1);
+	/* Wait for 5V ramp-up */
+	k_msleep(2);
+	display_clear();
+}
 
 static void button_timer_callback(struct k_timer *timer_id)
 {
@@ -22,6 +58,8 @@ static void button_callback(const struct device *dev, struct gpio_callback *cb,
 			    uint32_t pins)
 {
 	gpio_port_value_t port_val = 0;
+
+	k_wakeup(state.main_tid); /* Wake from sleep */
 
 	/* All pushbuttons are on the same port */
 	dev = device_get_binding(DT_GPIO_LABEL(DT_ALIAS(sw0), gpios));
