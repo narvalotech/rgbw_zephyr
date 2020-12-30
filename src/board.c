@@ -43,8 +43,6 @@ void board_suspend(void)
 
 	/* Restore display power */
 	board_enable_5v(1);
-	/* Wait for 5V ramp-up */
-	k_msleep(2);
 	display_clear();
 }
 
@@ -163,7 +161,8 @@ void board_enable_5v(bool enable)
 	if(enable)
 	{
 		gpio_pin_set(dev, VDD_CTL, 1);
-		k_msleep(100);
+		/* Wait for 5V ramp-up */
+		k_msleep(2);
 	}
 	else
 	{
