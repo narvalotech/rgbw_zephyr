@@ -105,6 +105,7 @@ static void button_callback(const struct device *dev, struct gpio_callback *cb,
 		else {
 			state.but_ur = 1;
 			state.select = 1;
+			state.abort_disp = 1;
 		}
 	}
 }

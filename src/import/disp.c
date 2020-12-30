@@ -224,6 +224,8 @@ void display_string(char* string, uint16_t repeat, uint16_t scrollspeed) {
 	uint16_t j = 0;
 	char currentChar = 0;
 
+	state.abort_disp = 0;
+
 	repeat++;
 	while(repeat != 0) {
 		repeat--;
