@@ -26,6 +26,9 @@ void board_suspend(void)
 	display_clear();
 	board_enable_5v(0);
 
+	/* Kill sensor power */
+	board_enable_vdd_ext(0);
+
 	/* Disable comm peripherals */
 	device_set_power_state(spi, DEVICE_PM_LOW_POWER_STATE, NULL, NULL);
 	device_set_power_state(i2c, DEVICE_PM_LOW_POWER_STATE, NULL, NULL);
@@ -34,6 +37,9 @@ void board_suspend(void)
 
 	/* Put CPU to sleep until interrupted */
 	k_sleep(K_FOREVER);
+
+	/* Restore sensor power */
+	board_enable_vdd_ext(1);
 
 	/* Re-enable/init comm peripherals */
 	device_set_power_state(spi, DEVICE_PM_ACTIVE_STATE, NULL, NULL);

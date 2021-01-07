@@ -55,7 +55,7 @@ void main(void)
 	display_string("hello", 0, 50);
 
 	main_state_set(PGM_STATE_CLOCK_BCD);
-	while(state.pgm_state != PGM_STATE_HIBERNATE)
+	while(1)
 	{
 		main_state_loop();
 	}
