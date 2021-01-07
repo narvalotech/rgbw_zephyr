@@ -12,6 +12,10 @@
 #define SW_0_PIN     DT_GPIO_PIN(DT_ALIAS(sw0), gpios) /* Lower left */
 #define SW_1_PIN     DT_GPIO_PIN(DT_ALIAS(sw1), gpios) /* Lower right */
 #define SW_2_PIN     DT_GPIO_PIN(DT_ALIAS(sw2), gpios) /* Upper right */
+#define BATT_NODE    DT_NODELABEL(batmon_en)
+#define BATT_PIN     DT_GPIO_PIN(BATT_NODE, gpios)
+#define MOTOR_NODE   DT_NODELABEL(hapt_pwm)
+#define MOTOR_PIN    DT_GPIO_PIN(MOTOR_NODE, gpios)
 
 extern struct g_state state;
 
@@ -151,9 +155,31 @@ static void setup_buttons(void)
 	gpio_add_callback(button, &button_cb_data);
 }
 
+static void setup_batt(void)
+{
+	const struct device *batt;
+
+	batt = device_get_binding(DT_GPIO_LABEL(BATT_NODE, gpios));
+	gpio_pin_configure(batt, BATT_PIN,
+			   GPIO_OUTPUT | DT_GPIO_FLAGS(BATT_NODE, gpios));
+	gpio_pin_set(batt, BATT_PIN, 0);
+}
+
+static void setup_motor(void)
+{
+	const struct device *motor;
+
+	motor = device_get_binding(DT_GPIO_LABEL(MOTOR_NODE, gpios));
+	gpio_pin_configure(motor, MOTOR_PIN,
+			   GPIO_OUTPUT | DT_GPIO_FLAGS(MOTOR_NODE, gpios));
+	gpio_pin_set(motor, MOTOR_PIN, 0);
+}
+
 void board_gpio_setup(void)
 {
 	setup_buttons();
+	setup_batt();
+	setup_motor();
 }
 
 void board_enable_5v(bool enable)
