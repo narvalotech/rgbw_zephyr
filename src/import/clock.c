@@ -5,10 +5,12 @@
 
 time_struct_t currentTime;
 
+static uint32_t clock_period_s = 1;
+
 struct k_timer clock_timer;
 static void clock_timer_callback(struct k_timer *timer_id)
 {
-	clock_increment_seconds();
+	clock_increment_seconds(clock_period_s);
 }
 
 K_TIMER_DEFINE(clock_timer, clock_timer_callback, NULL);
@@ -16,6 +18,28 @@ K_TIMER_DEFINE(clock_timer, clock_timer_callback, NULL);
 void clock_thread_sync(void)
 {
 	k_timer_status_sync(&clock_timer);
+}
+
+void clock_set_high_latency(bool latency)
+{
+	if(latency) {
+		/* Switch to 60s latency */
+		clock_thread_sync();
+		clock_period_s = 60;
+		k_timer_start(&clock_timer,
+			      K_SECONDS(clock_period_s),
+			      K_SECONDS(clock_period_s));
+	}
+	else {
+		/* Recover remaining time */
+		uint32_t rem_sec = k_timer_remaining_get(&clock_timer) / 1000;
+		clock_increment_seconds(60 - rem_sec);
+		/* Switch to 1s latency */
+		clock_period_s = 1;
+		k_timer_start(&clock_timer,
+			      K_SECONDS(clock_period_s),
+			      K_SECONDS(clock_period_s));
+	}
 }
 
 void clock_time_init()
@@ -39,19 +63,21 @@ void clock_set_time(time_struct_t newTime)
 	currentTime.seconds = newTime.seconds;
 }
 
-void clock_increment_seconds()
+void clock_increment_seconds(uint32_t seconds)
 {
-	currentTime.seconds++;
-	if(currentTime.seconds == 60) 
-	{
-		currentTime.minutes++;
-		currentTime.seconds = 0;
+	for(; seconds>0; seconds--) {
+		currentTime.seconds++;
+		if(currentTime.seconds == 60)
+		{
+			currentTime.minutes++;
+			currentTime.seconds = 0;
+		}
+		if(currentTime.minutes == 60)
+		{
+			currentTime.hours++;
+			currentTime.minutes = 0;
+		}
+		if(currentTime.hours == 24)
+			currentTime.hours = 0;
 	}
-	if(currentTime.minutes == 60) 
-	{
-		currentTime.hours++;
-		currentTime.minutes = 0;
-	}
-	if(currentTime.hours == 24)
-		currentTime.hours = 0;
 }

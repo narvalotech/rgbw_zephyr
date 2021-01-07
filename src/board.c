@@ -37,7 +37,8 @@ void board_suspend(void)
 	device_set_power_state(spi, DEVICE_PM_LOW_POWER_STATE, NULL, NULL);
 	device_set_power_state(i2c, DEVICE_PM_LOW_POWER_STATE, NULL, NULL);
 
-	/* Put clock counter into low-power mode */
+	/* Put clock counter into high-latency mode */
+	clock_set_high_latency(1);
 
 	/* Put CPU to sleep until interrupted */
 	k_sleep(K_FOREVER);
@@ -50,6 +51,7 @@ void board_suspend(void)
 	device_set_power_state(i2c, DEVICE_PM_ACTIVE_STATE, NULL, NULL);
 
 	/* Put clock counter into low-latency mode */
+	clock_set_high_latency(0);
 
 	/* Restore display power */
 	board_enable_5v(1);
