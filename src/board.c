@@ -6,6 +6,7 @@
 #include "state.h"
 #include "disp.h"
 #include "clock.h"
+#include "accel.h"
 
 #define VDD_CTL_NODE DT_NODELABEL(eio0)
 #define VDD_CTL	     DT_GPIO_PIN(VDD_CTL_NODE, gpios)
@@ -32,6 +33,7 @@ void board_suspend(void)
 
 	/* Kill sensor power */
 	board_enable_vdd_ext(0);
+	accel_high_latency(1);
 
 	/* Disable comm peripherals */
 	device_set_power_state(spi, DEVICE_PM_LOW_POWER_STATE, NULL, NULL);
@@ -45,6 +47,7 @@ void board_suspend(void)
 
 	/* Restore sensor power */
 	board_enable_vdd_ext(1);
+	accel_high_latency(0);
 
 	/* Re-enable/init comm peripherals */
 	device_set_power_state(spi, DEVICE_PM_ACTIVE_STATE, NULL, NULL);

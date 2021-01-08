@@ -24,6 +24,21 @@ int accel_get_mg(int32_t accel[3])
 	return rc;
 }
 
+int accel_high_latency(bool high)
+{
+	struct sensor_value freq;
+	if(high) {
+		freq.val1 = 1;
+	} else {
+		freq.val1 = 50;
+	}
+
+	return sensor_attr_set(sensor,
+			       SENSOR_CHAN_ACCEL_XYZ,
+			       SENSOR_ATTR_SAMPLING_FREQUENCY,
+			       &freq);
+}
+
 int accel_init(void)
 {
 	/* Need to use pinmux interface to enable sensor VDD because drivers are
