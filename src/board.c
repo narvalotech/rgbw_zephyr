@@ -24,8 +24,6 @@ void board_suspend(void)
 {
 	const struct device *spi =
 		device_get_binding(DT_LABEL(DT_ALIAS(ledspi)));
-	const struct device *i2c =
-		device_get_binding(DT_BUS_LABEL(DT_NODELABEL(accel)));
 
 	/* Kill display power */
 	display_clear();
