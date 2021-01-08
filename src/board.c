@@ -32,12 +32,10 @@ void board_suspend(void)
 	board_enable_5v(0);
 
 	/* Kill sensor power */
-	board_enable_vdd_ext(0);
 	accel_high_latency(1);
 
 	/* Disable comm peripherals */
 	device_set_power_state(spi, DEVICE_PM_LOW_POWER_STATE, NULL, NULL);
-	device_set_power_state(i2c, DEVICE_PM_LOW_POWER_STATE, NULL, NULL);
 
 	/* Put clock counter into high-latency mode */
 	clock_set_high_latency(1);
@@ -46,12 +44,10 @@ void board_suspend(void)
 	k_sleep(K_FOREVER);
 
 	/* Restore sensor power */
-	board_enable_vdd_ext(1);
 	accel_high_latency(0);
 
 	/* Re-enable/init comm peripherals */
 	device_set_power_state(spi, DEVICE_PM_ACTIVE_STATE, NULL, NULL);
-	device_set_power_state(i2c, DEVICE_PM_ACTIVE_STATE, NULL, NULL);
 
 	/* Put clock counter into low-latency mode */
 	clock_set_high_latency(0);
