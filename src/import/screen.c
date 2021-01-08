@@ -100,6 +100,8 @@ void screen_clock_bcd(void)
 
 void screen_stopwatch(void)
 {
+	uint32_t i = 0;
+
 	display_clear();
 	display_mono_set_color(0, 255, 0);
 	display_string("stw", 0, SCROLL_SPEED);
@@ -120,6 +122,13 @@ void screen_stopwatch(void)
 				stopwatch_reset(0);
 				display_clear();
 			}
+		}
+
+		i++;
+		if(i >= SLEEP_TIMEOUT * 100)
+		{
+			i = 0;
+			board_suspend();
 		}
 
 		if(stopwatch_state_get(0) == STW_STARTED)
