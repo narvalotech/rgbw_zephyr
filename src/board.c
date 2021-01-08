@@ -22,18 +22,12 @@ extern struct g_state state;
 
 void board_suspend(void)
 {
-	const struct device *spi =
-		device_get_binding(DT_LABEL(DT_ALIAS(ledspi)));
-
 	/* Kill display power */
 	display_clear();
 	board_enable_5v(0);
 
 	/* Kill sensor power */
 	accel_high_latency(1);
-
-	/* Disable comm peripherals */
-	device_set_power_state(spi, DEVICE_PM_LOW_POWER_STATE, NULL, NULL);
 
 	/* Put clock counter into high-latency mode */
 	clock_set_high_latency(1);
@@ -43,9 +37,6 @@ void board_suspend(void)
 
 	/* Restore sensor power */
 	accel_high_latency(0);
-
-	/* Re-enable/init comm peripherals */
-	device_set_power_state(spi, DEVICE_PM_ACTIVE_STATE, NULL, NULL);
 
 	/* Put clock counter into low-latency mode */
 	clock_set_high_latency(0);
