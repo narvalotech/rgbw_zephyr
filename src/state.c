@@ -57,6 +57,10 @@ void main_state_loop(void)
 			break;
 		case PGM_STATE_TEST:
 			screen_test();
+			main_state_set(PGM_STATE_BATT);
+			break;
+		case PGM_STATE_BATT:
+			screen_battery();
 			main_state_set(PGM_STATE_TEST_TILT);
 			break;
 		case PGM_STATE_CHARGE:

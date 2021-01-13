@@ -25,6 +25,7 @@ set(APP_SRC
   src/board.c
   src/state.c
   src/stopwatch.c
+  src/import/battery.c
   )
 
 set(APP_INCLUDE

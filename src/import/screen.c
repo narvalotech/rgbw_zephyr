@@ -13,6 +13,7 @@
 #include "stopwatch.h"
 #include "accel.h"
 #include "board.h"
+#include "battery.h"
 
 extern struct g_state state;
 
@@ -243,6 +244,45 @@ void screen_test(void)
 		/* Wait for next IRQ */
 		k_sleep(K_FOREVER);
 	}
+
+	state_clear();
+	display_clear();
+}
+
+static const struct battery_level_point levels[] = {
+/* See batt sample for explanation */
+	{ 10000, 3950 },
+	{ 625, 3550 },
+	{ 0, 3100 },
+};
+
+void screen_battery(void)
+{
+	/* Display battery level as percent and bargraph */
+	int batt_mv = 0;
+
+	battery_measure_enable(true);
+
+	display_clear();
+	display_mono_set_color(255, 3, 209); /* Pink */
+	display_string("batt", 0, SCROLL_SPEED);
+	k_msleep(DISP_DELAY);
+
+	/* Get batt level */
+	while(!batt_mv && !state.exit_signal && !state.main)
+	{
+		batt_mv = battery_sample();
+	}
+	/* Gives weird-ass values */
+	unsigned int batt_percent = battery_level_pptt(batt_mv, levels) / 10;
+	battery_measure_enable(false);
+
+	/* Display batt level */
+	/* TODO: add bargraph */
+	display_bcd(0, batt_percent, 0, 0);
+
+	/* Wait for next IRQ */
+	k_sleep(K_SECONDS(5));
 
 	state_clear();
 	display_clear();
