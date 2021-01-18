@@ -10,6 +10,7 @@
 #include "accel.h"
 #include "state.h"
 #include "screen.h"
+#include "ble.h"
 
 /* Has to be led_num + 2 long to accomodate
     * start and end words */
@@ -53,6 +54,9 @@ void main(void)
 	display_clear();
 	display_mono_set_color(255, 0, 0);
 	display_string("hello", 0, 50);
+
+	/* FIXME: blocking call */
+	ble_init();
 
 	main_state_set(PGM_STATE_CLOCK_BCD);
 	while(1)
