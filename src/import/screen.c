@@ -261,12 +261,10 @@ void screen_battery(void)
 	/* Display battery level as percent and bargraph */
 	int batt_mv = 0;
 
+	/* Remove load to get more accurate reading */
+	board_enable_5v(0);
 	battery_measure_enable(true);
-
-	display_clear();
-	display_mono_set_color(255, 3, 209); /* Pink */
-	display_string("batt", 0, SCROLL_SPEED);
-	k_msleep(DISP_DELAY);
+	k_msleep(100);
 
 	/* Get batt level */
 	while(!batt_mv && !state.exit_signal && !state.main)
@@ -277,11 +275,17 @@ void screen_battery(void)
 	unsigned int batt_percent = battery_level_pptt(batt_mv, levels) / 10;
 	battery_measure_enable(false);
 
+	board_enable_5v(1);
+	display_clear();
+	display_mono_set_color(255, 3, 209); /* Pink */
+	display_string("batt", 0, SCROLL_SPEED);
+	k_msleep(DISP_DELAY);
+
 	/* Display batt level */
 	/* TODO: add bargraph */
 	display_bcd(0, batt_percent, 0, 0);
 
-	/* Wait for next IRQ */
+	/* Wait 5s and exit to next screen */
 	k_sleep(K_SECONDS(5));
 
 	state_clear();
