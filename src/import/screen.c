@@ -14,6 +14,7 @@
 #include "accel.h"
 #include "board.h"
 #include "battery.h"
+#include "ble.h"
 
 extern struct g_state state;
 
@@ -287,6 +288,39 @@ void screen_battery(void)
 
 	/* Wait 5s and exit to next screen */
 	k_sleep(K_SECONDS(5));
+
+	state_clear();
+	display_clear();
+}
+
+void screen_ble(void)
+{
+	display_clear();
+	display_mono_set_color(0, 0, 255); /* Blue */
+	display_string("bluetooth", 0, SCROLL_SPEED);
+	k_msleep(DISP_DELAY);
+
+	while(!state.exit_signal && !state.main)
+	{
+		if(state.but_ur == 1)
+		{
+			state.but_ur = 0;
+			display_string("adv start", 0, SCROLL_SPEED);
+			k_msleep(DISP_DELAY);
+			ble_adv(1);
+		}
+		if(state.but_lr == 1)
+		{
+			state.but_lr = 0;
+			display_string("adv stop", 0, SCROLL_SPEED);
+			k_msleep(DISP_DELAY);
+			ble_adv(0);
+		}
+
+		display_clear();
+		/* Wait for next IRQ */
+		k_sleep(K_FOREVER);
+	}
 
 	state_clear();
 	display_clear();

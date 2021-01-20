@@ -55,7 +55,6 @@ void main(void)
 	display_mono_set_color(255, 0, 0);
 	display_string("hello", 0, 50);
 
-	/* FIXME: blocking call */
 	ble_init();
 
 	main_state_set(PGM_STATE_CLOCK_BCD);

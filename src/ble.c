@@ -103,19 +103,31 @@ int ble_init(void)
 		return err;
 	}
 
-	err = bt_le_adv_start(BT_LE_ADV_CONN, ad, ARRAY_SIZE(ad),
-			      sd, ARRAY_SIZE(sd));
-	if (err) {
-		printk("Advertising failed to start (err %d)\n", err);
-		return err;
+	return err;
+}
+
+int ble_adv(bool enable)
+{
+	int err = 0;
+
+	if(enable)
+	{
+		err = bt_le_adv_start(BT_LE_ADV_CONN, ad, ARRAY_SIZE(ad),
+				      sd, ARRAY_SIZE(sd));
+		if (err) {
+			printk("Advertising failed to start (err %d)\n", err);
+			return err;
+		}
+
+		printk("Advertising successfully started\n");
 	}
-
-	printk("Advertising successfully started\n");
-
-	display_string("adv", 0, 50);
-	board_enable_5v(0);
-	while(1)
-		k_msleep(100);
+	else {
+		err = bt_le_adv_stop();
+		if (err) {
+			printk("Advertising failed to stop (err %d)\n", err);
+			return err;
+		}
+	}
 
 	return err;
 }
