@@ -27,6 +27,7 @@ set(APP_SRC
   src/stopwatch.c
   src/import/battery.c
   src/ble.c
+  src/cts.c
   )
 
 set(APP_INCLUDE
