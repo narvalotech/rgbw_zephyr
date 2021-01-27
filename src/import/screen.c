@@ -287,7 +287,8 @@ void screen_battery(void)
 	display_bcd(0, batt_percent, 0, 0);
 
 	/* Wait 5s and exit to next screen */
-	k_sleep(K_SECONDS(5));
+	if(!state.exit_signal && !state.main)
+		k_sleep(K_SECONDS(5));
 
 	state_clear();
 	display_clear();
