@@ -309,6 +309,7 @@ void screen_ble(void)
 			display_string("adv start", 0, SCROLL_SPEED);
 			k_msleep(DISP_DELAY);
 			ble_adv(1);
+			board_enable_5v(0);
 		}
 		if(state.but_lr == 1)
 		{
@@ -316,13 +317,15 @@ void screen_ble(void)
 			display_string("adv stop", 0, SCROLL_SPEED);
 			k_msleep(DISP_DELAY);
 			ble_adv(0);
+			board_enable_5v(0);
 		}
 
-		display_clear();
 		/* Wait for next IRQ */
 		k_sleep(K_FOREVER);
 	}
 
+	/* Restart display for next screen */
+	board_enable_5v(1);
 	state_clear();
 	display_clear();
 }
