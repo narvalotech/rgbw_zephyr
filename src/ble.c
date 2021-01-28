@@ -106,13 +106,18 @@ int ble_init(void)
 	return err;
 }
 
+#define BT_LE_ADV_CUSTOM                                                       \
+	BT_LE_ADV_PARAM(BT_LE_ADV_OPT_CONNECTABLE | BT_LE_ADV_OPT_ONE_TIME,    \
+			BT_GAP_ADV_SLOW_INT_MIN, BT_GAP_ADV_SLOW_INT_MAX,      \
+			NULL)
+
 int ble_adv(bool enable)
 {
 	int err = 0;
 
 	if(enable)
 	{
-		err = bt_le_adv_start(BT_LE_ADV_CONN, ad, ARRAY_SIZE(ad),
+		err = bt_le_adv_start(BT_LE_ADV_CUSTOM, ad, ARRAY_SIZE(ad),
 				      sd, ARRAY_SIZE(sd));
 		if (err) {
 			printk("Advertising failed to start (err %d)\n", err);
