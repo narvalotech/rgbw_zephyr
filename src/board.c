@@ -82,11 +82,13 @@ static void button_callback(const struct device *dev, struct gpio_callback *cb,
 			state.main = 1;
 			state.abort_disp = 1;  /* Aborts scrolling text */
 			state.exit_signal = 1; /* Exits current activity */
+			clock_thread_unblock();
 		}
 		else {
 			state.but_ll = 1;
 			state.abort_disp = 1;  /* Aborts scrolling text */
 			state.exit_signal = 1; /* Exits current activity */
+			clock_thread_unblock();
 		}
 	}
 	if (pins & (1 << SW_1_PIN))

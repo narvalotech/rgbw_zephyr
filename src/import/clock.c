@@ -7,24 +7,32 @@ time_struct_t currentTime;
 
 static uint32_t clock_period_s = 1;
 
+K_SEM_DEFINE(wait_on_tick, 0, 1);
+
 struct k_timer clock_timer;
 static void clock_timer_callback(struct k_timer *timer_id)
 {
 	clock_increment_seconds(clock_period_s);
+	k_sem_give(&wait_on_tick);
 }
 
 K_TIMER_DEFINE(clock_timer, clock_timer_callback, NULL);
 
 void clock_thread_sync(void)
 {
-	k_timer_status_sync(&clock_timer);
+	k_sem_take(&wait_on_tick, K_FOREVER);
+}
+
+void clock_thread_unblock(void)
+{
+	k_sem_give(&wait_on_tick);
 }
 
 void clock_set_high_latency(bool latency)
 {
 	if(latency) {
 		/* Switch to 60s latency */
-		clock_thread_sync();
+		k_timer_status_sync(&clock_timer);
 		clock_period_s = 60;
 		k_timer_start(&clock_timer,
 			      K_SECONDS(clock_period_s),
