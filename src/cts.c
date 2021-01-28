@@ -27,6 +27,8 @@ LOG_MODULE_REGISTER(cts);
 
 static struct current_time current_local_time;
 
+static void apply_current_time(void);
+
 static void cts_ccc_cfg_changed(const struct bt_gatt_attr *attr, uint16_t value)
 {
 	ARG_UNUSED(attr);
@@ -86,11 +88,31 @@ static int cts_init(const struct device *dev)
 struct current_time *bt_cts_get_current_time(void)
 {
 	time_struct_t * p_time = clock_get_time_p();
-	current_local_time.exact_time_256.day_date_time.date_time.hours = p_time->hours;
-	current_local_time.exact_time_256.day_date_time.date_time.minutes = p_time->minutes;
-	current_local_time.exact_time_256.day_date_time.date_time.seconds = p_time->seconds;
+	current_local_time.exact_time_256.day_date_time.date_time.
+		hours = p_time->hours;
+	current_local_time.exact_time_256.day_date_time.date_time.
+		minutes = p_time->minutes;
+	current_local_time.exact_time_256.day_date_time.date_time.
+		seconds = p_time->seconds;
 
 	return &current_local_time;
+}
+
+static void apply_current_time(void)
+{
+	time_struct_t new_time;
+
+	new_time.hours =
+		current_local_time.exact_time_256.day_date_time.date_time
+		.hours;
+	new_time.minutes =
+		current_local_time.exact_time_256.day_date_time.date_time
+		.minutes;
+	new_time.seconds =
+		current_local_time.exact_time_256.day_date_time.date_time
+		.seconds;
+
+	clock_set_time(new_time);
 }
 
 int bt_cts_set_current_time(struct current_time *p_current_time)
