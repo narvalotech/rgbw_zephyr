@@ -56,7 +56,6 @@ struct current_time {
 	uint8_t adjust_reason;
 };
 
-int bt_cts_set_current_time(struct current_time *p_current_time);
 struct current_time *bt_cts_get_current_time(void);
 
 #endif // __CTS_H_
