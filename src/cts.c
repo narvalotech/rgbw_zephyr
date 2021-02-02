@@ -59,6 +59,7 @@ static ssize_t write_current_time(struct bt_conn *conn,
 
 	/* TODO: check data read */
 	memcpy(&current_local_time, buf, len);
+	apply_current_time();
 
 	return 0;
 }
