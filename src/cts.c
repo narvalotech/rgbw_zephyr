@@ -25,6 +25,14 @@
 #include <logging/log.h>
 LOG_MODULE_REGISTER(cts);
 
+#define CTS_NOTIFY_STACK_SIZE 500
+#define CTS_NOTIFY_PRIORITY 5
+
+static void cts_notify_entry_point(void *p1, void *p2, void *p3);
+K_THREAD_DEFINE(cts_notify_tid, CTS_NOTIFY_STACK_SIZE,
+                cts_notify_entry_point, NULL, NULL, NULL,
+                CTS_NOTIFY_PRIORITY, 0, 0);
+
 static struct current_time current_local_time;
 
 static void apply_current_time(void);
@@ -35,7 +43,13 @@ static void cts_ccc_cfg_changed(const struct bt_gatt_attr *attr, uint16_t value)
 
 	bool notif_enabled = (value == BT_GATT_CCC_NOTIFY);
 
-	LOG_INF("BAS Notifications %s", notif_enabled ? "enabled" : "disabled");
+	if (notif_enabled) {
+		k_thread_resume(cts_notify_tid);
+	} else {
+		k_thread_suspend(cts_notify_tid);
+	}
+
+	LOG_INF("CTS Notifications %s", notif_enabled ? "enabled" : "disabled");
 }
 
 static ssize_t read_current_time(struct bt_conn *conn,
@@ -74,8 +88,6 @@ BT_GATT_SERVICE_DEFINE(
 			       &current_local_time),
 	BT_GATT_CCC(cts_ccc_cfg_changed,
 		    BT_GATT_PERM_READ | BT_GATT_PERM_WRITE), );
-
-/* TODO: change below code and implement current time service */
 
 static int cts_init(const struct device *dev)
 {
@@ -116,17 +128,26 @@ static void apply_current_time(void)
 	clock_set_time(new_time);
 }
 
-int bt_cts_set_current_time(struct current_time *p_current_time)
-{
-	int rc;
-
-	/* TODO: check the passed values before blind write */
-	memcpy(&current_local_time, p_current_time, sizeof(current_local_time));
-
-	rc = bt_gatt_notify(NULL, &cts.attrs[1], &current_local_time,
-			    sizeof(current_local_time));
-
-	return rc == -ENOTCONN ? 0 : rc;
-}
-
 SYS_INIT(cts_init, APPLICATION, CONFIG_APPLICATION_INIT_PRIORITY);
+
+/* Notification thread pulls data from clock module */
+static void cts_notify_entry_point(void *p1, void *p2, void *p3) {
+	ARG_UNUSED(p1);
+	ARG_UNUSED(p2);
+	ARG_UNUSED(p3);
+
+	/* Disable notifications on startup */
+	k_thread_suspend(k_current_get());
+
+	while(1)
+	{
+		/* Wait for next internal time update */
+		clock_thread_sync();
+		/* Copy into local structure */
+		bt_cts_get_current_time();
+		/* GATT notify */
+		bt_gatt_notify(NULL, &cts.attrs[1],
+			&current_local_time,
+			sizeof(current_local_time));
+	}
+}
