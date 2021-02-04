@@ -34,7 +34,7 @@ struct g_state {
 };
 
 void state_clear(void);
-void main_state_set(pgm_state_t new_state);
+void main_state_set(pgm_state_t curr_state, pgm_state_t new_state);
 void main_state_loop(void);
 
 #endif // __STATE_H_

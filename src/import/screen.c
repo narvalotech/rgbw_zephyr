@@ -93,6 +93,12 @@ void screen_clock_bcd(void)
 			i = 0;
 			board_suspend();
 		}
+		if(state.but_lr == 2)
+		{
+			state.but_lr = 0;
+			state.pgm_state = PGM_STATE_CLOCK_SET;
+			break;
+		}
 		display_bcd(p_time->hours, p_time->minutes, p_time->seconds, 0);
 		clock_thread_sync();
 	}
