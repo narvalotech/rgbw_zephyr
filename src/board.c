@@ -93,8 +93,14 @@ static void button_callback(const struct device *dev, struct gpio_callback *cb,
 	}
 	if (pins & (1 << SW_1_PIN))
 	{
-		state.but_long_press = 0;
 		state.but_lr = 1;
+		if(state.but_long_press) {
+			state.but_long_press = 0;
+			state.but_lr = 2;
+		}
+		else {
+			state.but_lr = 1;
+		}
 	}
 	if (pins & (1 << SW_2_PIN))
 	{

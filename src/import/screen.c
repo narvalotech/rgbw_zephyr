@@ -83,8 +83,9 @@ void screen_clock_bcd(void)
 	display_clear();
 	display_string("clock", 0, SCROLL_SPEED);
 
-	int i = 0;
+	uint32_t arm_reset = 0;
 
+	int i = 0;
 	while(!state.exit_signal && !state.main)
 	{
 		i++;
@@ -93,14 +94,31 @@ void screen_clock_bcd(void)
 			i = 0;
 			board_suspend();
 		}
+		if(state.but_ur == 2)
+		{
+			state.but_ur = 0;
+			if(!arm_reset) {
+				arm_reset = 1;
+			}
+			else {
+				arm_reset = 0;
+			}
+		}
 		if(state.but_lr == 2)
 		{
-			state.but_lr = 0;
-			state.pgm_state = PGM_STATE_CLOCK_SET;
-			break;
+			if(!arm_reset) {
+				state.but_lr = 0;
+				state.pgm_state = PGM_STATE_CLOCK_SET;
+				break;
+			}
+			arm_reset = 2;
 		}
 		display_bcd(p_time->hours, p_time->minutes, p_time->seconds, 0);
 		clock_thread_sync();
+	}
+
+	if(arm_reset == 2) {
+		NVIC_SystemReset();
 	}
 
 	state_clear();
