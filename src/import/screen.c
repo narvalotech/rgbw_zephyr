@@ -319,6 +319,16 @@ void screen_ble(void)
 			ble_adv(0);
 			board_enable_5v(0);
 		}
+		if (state.but_ur == 2)
+		{
+			state.but_ur = 0;
+			board_enable_5v(1);
+			display_string("update param", 0, SCROLL_SPEED);
+			k_msleep(DISP_DELAY);
+			ble_adv(0);
+			board_enable_5v(0);
+			ble_update_param();
+		}
 
 		/* Wait for next IRQ */
 		k_sleep(K_FOREVER);

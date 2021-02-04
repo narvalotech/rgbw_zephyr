@@ -15,6 +15,7 @@
 #define DEVICE_NAME_LEN         (sizeof(DEVICE_NAME) - 1)
 
 extern struct g_state state;
+struct bt_conn * master_conn = NULL;
 
 static const struct bt_data ad[] = {
 	BT_DATA_BYTES(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR)),
@@ -32,6 +33,7 @@ static void connected(struct bt_conn *conn, uint8_t err)
 		return;
 	}
 
+	master_conn = conn;
 	printk("Connected\n");
 
 	board_enable_5v(1);
@@ -47,6 +49,8 @@ static void connected(struct bt_conn *conn, uint8_t err)
 static void disconnected(struct bt_conn *conn, uint8_t reason)
 {
 	printk("Disconnected (reason %u)\n", reason);
+
+	master_conn = NULL;
 
 	board_enable_5v(1);
 	display_clear();
@@ -79,7 +83,6 @@ static void security_changed(struct bt_conn *conn, bt_security_t level,
 		display_clear();
 		display_string("encrypted", 0, 50);
 		board_enable_5v(0);
-
 	} else {
 		printk("Security failed: %s level %u err %d\n", addr, level,
 		       err);
@@ -220,4 +223,21 @@ int ble_adv(bool enable)
 	}
 
 	return err;
+}
+
+int ble_update_param(void)
+{
+	if (!master_conn) {
+		return -1;
+	}
+
+	const struct bt_le_conn_param param = { /* 500ms */
+						.interval_min = 400,
+						/* 2s */
+						.interval_max = 1600,
+						.latency = 0,
+						/* 8s */
+						.timeout = 800
+	};
+	return bt_conn_le_param_update(master_conn, &param);
 }
