@@ -41,9 +41,10 @@ static void connected(struct bt_conn *conn, uint8_t err)
 	display_string("connect", 0, 50);
 	board_enable_5v(0);
 
-	if (bt_conn_set_security(conn, BT_SECURITY_L4)) {
-		printk("Failed to set security\n");
-	}
+	/* TODO: re-enable whe it works reliably */
+	/* if (bt_conn_set_security(conn, BT_SECURITY_L4)) { */
+	/* 	printk("Failed to set security\n"); */
+	/* } */
 }
 
 static void disconnected(struct bt_conn *conn, uint8_t reason)
@@ -132,11 +133,10 @@ static void auth_passkey_display(struct bt_conn *conn, unsigned int passkey)
 	board_enable_5v(1);
 	display_clear();
 	display_string("passkey", 0, 50);
-	uint8_t high = passkey / 10000;
-	uint8_t mid = (passkey / 100) - (high * 100);
-	uint8_t low = passkey - ((passkey / 100) * 100);
-	display_bcd(high, mid, low, 1000);
-	board_enable_5v(0);
+	uint32_t high = passkey / 10000;
+	uint32_t mid = (passkey / 100) - (high * 100);
+	uint32_t low = passkey - ((passkey / 100) * 100);
+	display_bcd(high, mid, low, 0);
 }
 
 static void auth_cancel(struct bt_conn *conn)
@@ -146,17 +146,28 @@ static void auth_cancel(struct bt_conn *conn)
 	bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
 
 	printk("Pairing cancelled: %s\n", addr);
+
+	board_enable_5v(1);
+	display_string("auth cancel", 0, 50);
+	board_enable_5v(0);
 }
 
 static void pairing_complete(struct bt_conn *conn, bool bonded)
 {
 	printk("Pairing Complete\n");
+	board_enable_5v(1);
+	display_string("auth complete", 0, 50);
+	board_enable_5v(0);
 }
 
 static void pairing_failed(struct bt_conn *conn, enum bt_security_err reason)
 {
 	printk("Pairing Failed (%d). Disconnecting.\n", reason);
-	bt_conn_disconnect(conn, BT_HCI_ERR_AUTH_FAIL);
+	/* TODO: re-enable when it works reliably */
+	/* bt_conn_disconnect(conn, BT_HCI_ERR_AUTH_FAIL); */
+	board_enable_5v(1);
+	display_string("auth failed", 0, 50);
+	board_enable_5v(0);
 }
 
 static struct bt_conn_auth_cb auth_cb_display = {
