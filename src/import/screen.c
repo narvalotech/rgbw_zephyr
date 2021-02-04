@@ -306,6 +306,7 @@ void screen_ble(void)
 		if(state.but_ur == 1)
 		{
 			state.but_ur = 0;
+			board_enable_5v(1);
 			display_string("adv start", 0, SCROLL_SPEED);
 			k_msleep(DISP_DELAY);
 			ble_adv(1);
@@ -314,6 +315,7 @@ void screen_ble(void)
 		if(state.but_lr == 1)
 		{
 			state.but_lr = 0;
+			board_enable_5v(1);
 			display_string("adv stop", 0, SCROLL_SPEED);
 			k_msleep(DISP_DELAY);
 			ble_adv(0);
