@@ -26,6 +26,7 @@ set(APP_SRC
   src/state.c
   src/stopwatch.c
   src/import/battery.c
+  src/motor.c
   src/ble.c
   src/cts.c
   )

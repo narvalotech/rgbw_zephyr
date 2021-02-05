@@ -231,7 +231,7 @@ void screen_test(void)
 	 * - motor driver enable */
 #define BATT_NODE DT_NODELABEL(batmon_en)
 #define BATT_PIN DT_GPIO_PIN(BATT_NODE, gpios)
-#define MOTOR_NODE DT_NODELABEL(hapt_pwm)
+#define MOTOR_NODE DT_NODELABEL(hapt_gpio)
 #define MOTOR_PIN DT_GPIO_PIN(MOTOR_NODE, gpios)
 
 	uint8_t status_batt = 0;

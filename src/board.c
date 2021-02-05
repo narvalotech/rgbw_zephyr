@@ -7,6 +7,7 @@
 #include "disp.h"
 #include "clock.h"
 #include "accel.h"
+#include "motor.h"
 
 #define VDD_CTL_NODE DT_NODELABEL(eio0)
 #define VDD_CTL	     DT_GPIO_PIN(VDD_CTL_NODE, gpios)
@@ -15,7 +16,7 @@
 #define SW_2_PIN     DT_GPIO_PIN(DT_ALIAS(sw2), gpios) /* Upper right */
 #define BATT_NODE    DT_NODELABEL(batmon_en)
 #define BATT_PIN     DT_GPIO_PIN(BATT_NODE, gpios)
-#define MOTOR_NODE   DT_NODELABEL(hapt_pwm)
+#define MOTOR_NODE   DT_NODELABEL(hapt_gpio)
 #define MOTOR_PIN    DT_GPIO_PIN(MOTOR_NODE, gpios)
 
 extern struct g_state state;
@@ -171,6 +172,9 @@ static void setup_motor(void)
 	gpio_pin_configure(motor, MOTOR_PIN,
 			   GPIO_OUTPUT | DT_GPIO_FLAGS(MOTOR_NODE, gpios));
 	gpio_pin_set(motor, MOTOR_PIN, 0);
+
+	/* Setup PWM after setting up GPIO fallback */
+	motor_init();
 }
 
 void board_gpio_setup(void)
