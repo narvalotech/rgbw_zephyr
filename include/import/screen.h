@@ -7,6 +7,7 @@
 void screen_time_set(void);
 void screen_clock_bcd(void);
 void screen_stopwatch(void);
+void screen_metronome(void);
 void screen_test_tilt(void);
 void screen_test(void);
 void screen_battery(void);

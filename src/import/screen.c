@@ -15,6 +15,7 @@
 #include "board.h"
 #include "battery.h"
 #include "ble.h"
+#include "metronome.h"
 
 extern struct g_state state;
 
@@ -364,4 +365,43 @@ void screen_ble(void)
 	board_enable_5v(1);
 	state_clear();
 	display_clear();
+}
+
+void screen_metronome(void)
+{
+	display_clear();
+	display_mono_set_color(128, 29, 214); /* Purple-ish */
+	display_string("metronome", 0, SCROLL_SPEED);
+	k_msleep(DISP_DELAY);
+
+	static uint32_t tempo_bpm = 80;
+	uint8_t enable = 1;
+
+	while(!state.exit_signal && !state.main)
+	{
+		if(state.but_ur == 1)
+		{
+			state.but_ur = 0;
+			tempo_bpm = (metronome_tap_tempo() * 60) / 1000;
+		}
+		if(state.but_lr == 1)
+		{
+			state.but_lr = 0;
+			metronome_enable(enable);
+			enable ^= 0x01;
+		}
+		if (state.but_ur == 2)
+		{
+			state.but_ur = 0;
+		}
+
+		display_bcd(tempo_bpm / 100, tempo_bpm % 100, enable, 0);
+
+		/* Wait for next IRQ */
+		k_sleep(K_FOREVER);
+	}
+
+	metronome_enable(false);
+	display_clear();
+	state_clear();
 }
