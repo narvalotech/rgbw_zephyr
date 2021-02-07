@@ -38,9 +38,12 @@ void motor_pulse_single(uint32_t time_us, uint32_t cycles)
 		/* Switch on a defined intensity */
 		pwm_pin_set_usec(motor, PWM_CHANNEL, PWM_PERIOD_US, PWM_PULSE_US, PWM_FLAGS);
 		/* Wait a bit */
-		k_busy_wait(time_us);
+		k_busy_wait(time_us / 2);
 		/* Switch off */
 		pwm_pin_set_usec(motor, PWM_CHANNEL, PWM_PERIOD_US, 0, PWM_FLAGS);
+		/* Wait a bit */
+		if(cycles>1)
+			k_busy_wait(time_us / 2);
 	}
 }
 

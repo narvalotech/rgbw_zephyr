@@ -16,6 +16,7 @@
 #include "battery.h"
 #include "ble.h"
 #include "metronome.h"
+#include "motor.h"
 
 extern struct g_state state;
 
@@ -375,30 +376,34 @@ void screen_metronome(void)
 	k_msleep(DISP_DELAY);
 
 	static uint32_t tempo_bpm = 80;
-	uint8_t enable = 1;
+	uint8_t enable = 0;
+
+	metronome_set_tempo(tempo_bpm);
 
 	while(!state.exit_signal && !state.main)
 	{
-		if(state.but_ur == 1)
+		if(state.but_ur)
 		{
 			state.but_ur = 0;
-			tempo_bpm = (metronome_tap_tempo() * 60) / 1000;
+			tempo_bpm = metronome_get_tempo();
+			k_msleep(50);
 		}
-		if(state.but_lr == 1)
+		if(state.but_lr)
 		{
+			k_msleep(200);
 			state.but_lr = 0;
-			metronome_enable(enable);
 			enable ^= 0x01;
-		}
-		if (state.but_ur == 2)
-		{
-			state.but_ur = 0;
+			metronome_enable(enable);
 		}
 
 		display_bcd(tempo_bpm / 100, tempo_bpm % 100, enable, 0);
 
 		/* Wait for next IRQ */
-		k_sleep(K_FOREVER);
+		k_msleep(500);
+	}
+	if(enable)
+	{
+		motor_pulse_single(500 * 1000, 2);
 	}
 
 	metronome_enable(false);
