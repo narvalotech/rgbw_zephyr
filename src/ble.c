@@ -11,6 +11,10 @@
 
 #include <bluetooth/services/lbs.h>
 
+#include "img_mgmt/img_mgmt.h"
+#include "os_mgmt/os_mgmt.h"
+#include <mgmt/mcumgr/smp_bt.h>
+
 #define DEVICE_NAME             CONFIG_BT_DEVICE_NAME
 #define DEVICE_NAME_LEN         (sizeof(DEVICE_NAME) - 1)
 
@@ -178,6 +182,14 @@ static struct bt_conn_auth_cb auth_cb_display = {
 	.pairing_failed = pairing_failed,
 };
 
+static int dfu_init(void)
+{
+	os_mgmt_register_group();
+	img_mgmt_register_group();
+	int err = smp_bt_register();
+	return err;
+}
+
 int ble_init(void)
 {
 	int err;
@@ -201,6 +213,13 @@ int ble_init(void)
 		printk("Failed to init LBS (err:%d)\n", err);
 		return err;
 	}
+
+	err = dfu_init();
+	if (err) {
+		printk("Failed to init DFU (err:%d)\n", err);
+		return err;
+	}
+	printk("DFU initialized\n");
 
 	return err;
 }

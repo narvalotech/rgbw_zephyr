@@ -13,6 +13,8 @@ find_package(Zephyr HINTS $ENV{ZEPHYR_BASE})
 
 project(rgbwatch)
 
+set(CMAKE_BUILD_TYPE Release)
+
 set(APP_SRC
   src/main.c
   src/rgb_led.c
