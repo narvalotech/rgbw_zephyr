@@ -49,7 +49,8 @@ void motor_pulse_single(uint32_t time_us, uint32_t cycles)
 
 void motor_off(void)
 {
-	k_thread_suspend(k_current_get());
+	s_pulse_us = 0;
+	k_thread_suspend(motor_tid);
 	pwm_pin_set_usec(motor, PWM_CHANNEL, PWM_PERIOD_US, 0, PWM_FLAGS);
 }
 
