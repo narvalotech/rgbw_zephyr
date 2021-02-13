@@ -3,6 +3,17 @@ cmake_minimum_required(VERSION 3.13.1)
 
 set(BOARD core840)
 
+set(mcuboot_OVERLAY_CONFIG
+  overlay-minimal-external-crypto.conf
+  )
+
+set(mcuboot_CONF_FILE
+  # Need to define this var instead of using
+  # overlay, because of custom key logic in
+  # NCS mcuboot.cmake
+  ${CMAKE_CURRENT_SOURCE_DIR}/mcuboot.conf
+  )
+
 find_package(Zephyr HINTS $ENV{ZEPHYR_BASE})
 
 # if(CONFIG_PINMUX)
