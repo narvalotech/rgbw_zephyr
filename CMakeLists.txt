@@ -3,6 +3,10 @@ cmake_minimum_required(VERSION 3.13.1)
 
 set(BOARD core840)
 
+set(b0_OVERLAY_CONFIG
+  ${CMAKE_CURRENT_SOURCE_DIR}/b0.conf
+  )
+
 set(mcuboot_OVERLAY_CONFIG
   overlay-minimal-external-crypto.conf
   )
