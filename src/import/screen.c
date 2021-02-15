@@ -137,13 +137,24 @@ void screen_stopwatch(void)
 
 	while(!state.exit_signal && !state.main)
 	{
+		i++;
+		if(i >= SLEEP_TIMEOUT * 100)
+		{
+			i = 0;
+			board_suspend();
+		}
+
 		if(state.but_ur)
 		{
+			/* Start/stop */
 			state.but_ur = 0;
 			stopwatch_toggle(0);
 		}
 		if(state.but_lr == 1)
 		{
+			/* Clear counter
+			 * Just wakes the screen if stopwatch
+			 * counter is not stopped */
 			state.but_lr = 0;
 			if(stopwatch_state_get(0) == STW_STOPPED)
 			{
@@ -152,23 +163,18 @@ void screen_stopwatch(void)
 			}
 		}
 
-		i++;
-		if(i >= SLEEP_TIMEOUT * 100)
-		{
-			i = 0;
-			board_suspend();
-		}
+		display_bcd(stopwatch_minutes_get(0),
+			stopwatch_seconds_get(0),
+			stopwatch_cents_get(0),
+			0);
 
-		if(stopwatch_state_get(0) == STW_STARTED)
-		{
-			display_bcd(stopwatch_minutes_get(0),
-				stopwatch_seconds_get(0),
-				stopwatch_cents_get(0),
-				0);
+		/* Wait for either next timer tick or button
+		 * interrupt */
+		if(stopwatch_state_get(0) == STW_STARTED) {
 			stopwatch_thread_sync(0);
 		}
 		else {
-			k_sleep(K_MSEC(10));
+			k_sleep(K_FOREVER);
 		}
 	}
 
