@@ -174,7 +174,7 @@ void screen_stopwatch(void)
 			stopwatch_thread_sync(0);
 		}
 		else {
-			k_sleep(K_FOREVER);
+			k_msleep(10);
 		}
 	}
 
