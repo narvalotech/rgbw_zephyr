@@ -1,6 +1,7 @@
 # Find Zephyr. This also loads Zephyr's build system.
 cmake_minimum_required(VERSION 3.13.1)
 
+list(APPEND BOARD_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 set(BOARD core840)
 
 set(b0_OVERLAY_CONFIG
@@ -19,12 +20,6 @@ set(mcuboot_CONF_FILE
   )
 
 find_package(Zephyr HINTS $ENV{ZEPHYR_BASE})
-
-# if(CONFIG_PINMUX)
-#   zephyr_library()
-#   zephyr_library_sources(src/pinmux.c)
-#   zephyr_library_include_directories(${ZEPHYR_BASE}/drivers)
-# endif()
 
 project(rgbwatch)
 

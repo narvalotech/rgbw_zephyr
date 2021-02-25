@@ -1,0 +1,20 @@
+identifier: core840
+name: nRF52840-Core-840
+type: mcu
+arch: arm
+ram: 256
+flash: 1024
+toolchain:
+  - zephyr
+  - gnuarmemb
+  - xtools
+supported:
+  - adc
+  - ble
+  - counter
+  - gpio
+  - i2c
+  - ieee802154
+  - spi
+  - watchdog
+  - netif:openthread

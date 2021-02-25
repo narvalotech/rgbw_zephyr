@@ -1,0 +1,250 @@
+/*
+ * Copyright (c) 2017 Linaro Limited
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/dts-v1/;
+#include <nordic/nrf52840_qiaa.dtsi>
+
+/ {
+	model = "Core840 m-watch board";
+	compatible = "nordic,nrf52840-dk-nrf52840";
+	/* TODO: change compatible */
+
+	chosen {
+		zephyr,sram = &sram0;
+		zephyr,flash = &flash0;
+		zephyr,code-partition = &slot0_partition;
+	};
+
+	leds {
+		/* No leds are actually present on the board */
+		compatible = "gpio-leds";
+		led0: led_0 {
+			gpios = <&gpio0 25 GPIO_ACTIVE_LOW>;
+			label = "Green LED 0";
+		};
+		led1: led_1 {
+			gpios = <&gpio0 26 GPIO_ACTIVE_LOW>;
+			label = "Green LED 1";
+		};
+		led2: led_2 {
+			gpios = <&gpio0 27 GPIO_ACTIVE_LOW>;
+			label = "Green LED 2";
+		};
+		led3: led_3 {
+			gpios = <&gpio0 28 GPIO_ACTIVE_LOW>;
+			label = "Green LED 3";
+		};
+	};
+
+	buttons {
+		compatible = "gpio-keys";
+		button0: button_0 {
+			/* Lower left */
+			gpios = <&gpio1 10 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			label = "Push button switch 0";
+		};
+		button1: button_1 {
+			/* Lower right */
+			gpios = <&gpio1 13 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			label = "Push button switch 1";
+		};
+		button2: button_2 {
+			/* Upper right */
+			gpios = <&gpio1 4 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			label = "Push button switch 2";
+		};
+		button3: button_3 {
+			/* Not actually connected to anything */
+			gpios = <&gpio1 1 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			label = "Push button switch 3";
+		};
+	};
+
+	ext_io {
+		compatible = "gpio-leds";
+		/* GPIOs present on extension connector */
+		eio0: ext_io0 {
+			gpios = <&gpio1 0 GPIO_ACTIVE_HIGH>;
+			label = "External IO 0";
+			/* also controls external 5V rail */
+		};
+		eio1: ext_io1 {
+			gpios = <&gpio1 2 GPIO_ACTIVE_HIGH>;
+			label = "External IO 1";
+		};
+		eio2_ain0: ext_ain0_io2 {
+			gpios = <&gpio0 31 GPIO_ACTIVE_HIGH>;
+			label = "External IO 2, analog in 0";
+		};
+		eio3_ain1: ext_ain1_io3 {
+			gpios = <&gpio0 29 GPIO_ACTIVE_HIGH>;
+			label = "External IO 3, analog in 1";
+		};
+		eio4_ain2: ext_ain2_io4 {
+			gpios = <&gpio0 2 GPIO_ACTIVE_HIGH>;
+			label = "External IO 4, analog in 2";
+		};
+	};
+
+	board_inputs {
+		compatible = "gpio-keys";
+		chg_active: chg_active {
+			gpios = <&gpio0 17 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			label = "Battery charging indicator (output from charger)";
+		};
+		batmon_out: batmon_out {
+			gpios = <&gpio0 31 GPIO_ACTIVE_HIGH>;
+			label = "Battery volt. divider output";
+			/* Shared with ext_ain0_io2 */
+		};
+		acc_int1: acc_int1 {
+			gpios = <&gpio0 6 GPIO_ACTIVE_HIGH>;
+			label = "Accelerometer IRQ 1";
+		};
+		acc_int2: acc_int2 {
+			gpios = <&gpio0 8 GPIO_ACTIVE_HIGH>;
+			label = "Accelerometer IRQ 2";
+		};
+	};
+
+	board_outputs {
+		compatible = "gpio-leds";
+		batmon_en: batmon_en {
+			gpios = <&gpio0 4 GPIO_ACTIVE_HIGH>;
+			label = "Battery volt. divider enable";
+		};
+		sens_en: sens_en {
+			gpios = <&gpio1 9 GPIO_ACTIVE_HIGH>;
+			label = "Sensor VDD bus enable";
+		};
+		hapt_gpio: hapt_gpio {
+			gpios = <&gpio1 15 GPIO_ACTIVE_HIGH>;
+			label = "Haptics (vibration) driver PWM";
+		};
+	};
+
+	board_pwm {
+		compatible = "pwm-leds";
+		hapt_pwm: hapt_pwm {
+			pwms = <&pwm0 47>;
+			label = "Haptics (vibration) driver PWM";
+		};
+	};
+
+   	vbatt {
+   		compatible = "voltage-divider";
+   		io-channels = <&adc 7>; /* GPIO 0:31 */
+   		output-ohms = <10000>;
+   		full-ohms = <(10000 + 10000)>;
+   		power-gpios = <&gpio0 4 GPIO_ACTIVE_HIGH>;
+   	};
+
+	/* These aliases are provided for compatibility with samples */
+	aliases {
+		led0 = &led0;
+		led1 = &led1;
+		led2 = &led2;
+		led3 = &led3;
+		sw0 = &button0;
+		sw1 = &button1;
+		sw2 = &button2;
+		sw3 = &button3;
+		ledspi = &spi0;
+	};
+};
+
+&pwm0 {
+	status = "okay";
+	/* See hapt_pwm node */
+	ch0-pin = <47>;
+	/* ch0-inverted; */
+};
+
+&adc {
+	status = "okay";
+};
+
+&gpiote {
+	status = "okay";
+};
+
+&gpio0 {
+	status = "okay";
+};
+
+&gpio1 {
+	status = "okay";
+};
+
+&i2c1 {
+	compatible = "nordic,nrf-twim";
+	status = "okay";
+	sda-pin = <13>;
+	scl-pin = <15>;
+	clock-frequency = <I2C_BITRATE_FAST>;
+
+	accel: lis2dh@19 {
+		/* Is actually a lis3dh, but compatible with lis3dh cmd set */
+		compatible = "st,lis2dh";
+		label = "LIS3DH-ACCEL";
+		status = "okay";
+		/* SA0 = 1 */
+		reg = <0x19>;
+		irq-gpios = 	<&gpio0 6 GPIO_ACTIVE_HIGH>,
+				<&gpio0 8 GPIO_ACTIVE_HIGH>;
+	};
+};
+
+&spi0 {
+	compatible = "nordic,nrf-spim";
+	status = "okay";
+	sck-pin = <24>;
+	mosi-pin = <20>;
+	miso-pin = <22>;
+};
+
+&flash0 {
+	/*
+	 * For more information, see:
+	 * https://docs.zephyrproject.org/latest/guides/dts/legacy-macros.html#legacy-flash-partitions
+	 */
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		boot_partition: partition@0 {
+			label = "mcuboot";
+			reg = <0x000000000 0x0000C000>;
+		};
+		slot0_partition: partition@c000 {
+			label = "image-0";
+			reg = <0x0000C000 0x00067000>;
+		};
+		slot1_partition: partition@73000 {
+			label = "image-1";
+			reg = <0x00073000 0x00067000>;
+		};
+		scratch_partition: partition@da000 {
+			label = "image-scratch";
+			reg = <0x000da000 0x0001e000>;
+		};
+
+		/*
+		 * The flash starting at 0x000f8000 and ending at
+		 * 0x000fffff is reserved for use by the application.
+		 */
+
+		/*
+		 * Storage partition will be used by FCB/LittleFS/NVS
+		 * if enabled.
+		 */
+		storage_partition: partition@f8000 {
+			label = "storage";
+			reg = <0x000f8000 0x00008000>;
+		};
+	};
+};
