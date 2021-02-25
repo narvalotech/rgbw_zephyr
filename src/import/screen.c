@@ -392,6 +392,7 @@ void screen_metronome(void)
 		{
 			state.but_ur = 0;
 			tempo_bpm = metronome_get_tempo();
+			metronome_tap_tempo();
 			k_msleep(50);
 		}
 		if(state.but_lr)
