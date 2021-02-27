@@ -11,17 +11,64 @@
 #define PWM_PERIOD_US (16 * 10)
 #define PWM_PULSE_US (PWM_PERIOD_US / 2)
 
+typedef enum {
+	STOP = 0,
+	OVERDRIVE,
+	RUN,
+} motor_state_t;
+
+const uint32_t m_duty[3] =    { 0, 100, 60};
+const uint32_t m_time_ms[3] = { 0, 25, 150};
+
+volatile uint32_t period_ms = 1000;
+volatile motor_state_t motor_state = 0;
+
 const struct device *motor;
-static uint32_t s_period_us = 0;
-static uint32_t s_pulse_us = 0;
 
-#define MOTOR_STACK_SIZE 500
-#define MOTOR_PRIORITY 5
+struct k_timer motor_timer;
 
-static void motor_entry_point(void *p1, void *p2, void *p3);
-K_THREAD_DEFINE(motor_tid, MOTOR_STACK_SIZE,
-                motor_entry_point, NULL, NULL, NULL,
-                MOTOR_PRIORITY, 0, 0);
+static void motor_set_duty(uint32_t duty)
+{
+	pwm_pin_set_usec(motor, PWM_CHANNEL,
+			 PWM_PERIOD_US, (duty * PWM_PERIOD_US) / 100,
+			 PWM_FLAGS);
+}
+
+static void motor_timer_callback(struct k_timer *timer_id)
+{
+	motor_set_duty(m_duty[motor_state]);
+
+	switch (motor_state) {
+		case OVERDRIVE:
+			k_timer_start(&motor_timer,
+				      K_MSEC(m_time_ms[motor_state]),
+				      K_MSEC(0));
+			motor_state = RUN;
+			break;
+		case RUN:
+			k_timer_start(&motor_timer,
+				      K_MSEC(m_time_ms[motor_state]),
+				      K_MSEC(0));
+			motor_state = STOP;
+			break;
+		case STOP:
+		{
+			uint32_t rem_time_ms = 0;
+			if (period_ms > (m_time_ms[1] + m_time_ms[2])) {
+				rem_time_ms =
+					period_ms - m_time_ms[1] - m_time_ms[2];
+			}
+			k_timer_start(&motor_timer,
+				      K_MSEC(rem_time_ms),
+				      K_MSEC(0));
+			motor_state = OVERDRIVE;
+			break;
+		}
+		default:
+			return;
+	}
+}
+K_TIMER_DEFINE(motor_timer, motor_timer_callback, NULL);
 
 void motor_init(void)
 {
@@ -49,31 +96,17 @@ void motor_pulse_single(uint32_t time_us, uint32_t cycles)
 
 void motor_off(void)
 {
-	s_pulse_us = 0;
-	k_thread_suspend(motor_tid);
+	k_timer_stop(&motor_timer);
+	motor_state = STOP;
 	pwm_pin_set_usec(motor, PWM_CHANNEL, PWM_PERIOD_US, 0, PWM_FLAGS);
 }
 
-void motor_pulse_loop(uint32_t period_us, uint32_t pulse_us)
+void motor_loop(uint32_t loop_time_ms, bool start_timer)
 {
-	s_period_us = period_us;
-	s_pulse_us = pulse_us;
-
-	k_thread_resume(motor_tid);
-}
-
-static void motor_entry_point(void *p1, void *p2, void *p3)
-{
-	ARG_UNUSED(p1);
-	ARG_UNUSED(p2);
-	ARG_UNUSED(p3);
-
-	/* Disable on startup */
-	k_thread_suspend(k_current_get());
-
-	while (1) {
-		pwm_pin_set_usec(motor, PWM_CHANNEL, s_period_us, s_pulse_us,
-				 PWM_FLAGS);
-		k_msleep(100);
+	period_ms = loop_time_ms;
+	if(start_timer)
+	{
+		motor_state = OVERDRIVE;
+		k_timer_start(&motor_timer, K_MSEC(1), K_MSEC(0));
 	}
 }

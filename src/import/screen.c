@@ -381,7 +381,7 @@ void screen_metronome(void)
 	display_string("metronome", 0, SCROLL_SPEED);
 	k_msleep(DISP_DELAY);
 
-	static uint32_t tempo_bpm = 80;
+	static uint32_t tempo_bpm = 120;
 	uint8_t enable = 0;
 
 	metronome_set_tempo(tempo_bpm);
@@ -391,26 +391,22 @@ void screen_metronome(void)
 		if(state.but_ur)
 		{
 			state.but_ur = 0;
-			tempo_bpm = metronome_get_tempo();
 			metronome_tap_tempo();
-			k_msleep(50);
 		}
 		if(state.but_lr)
 		{
-			k_msleep(200);
 			state.but_lr = 0;
 			enable ^= 0x01;
 			metronome_enable(enable);
 		}
 
-		display_bcd(tempo_bpm / 100, tempo_bpm % 100, enable, 0);
+		tempo_bpm = metronome_get_tempo();
+		uint32_t top = tempo_bpm / 100;
+		uint32_t mid = tempo_bpm % 100;
+		display_bcd(top, mid, enable, 0);
 
 		/* Wait for next IRQ */
-		k_msleep(500);
-	}
-	if(enable)
-	{
-		motor_pulse_single(500 * 1000, 2);
+		k_sleep(K_FOREVER);
 	}
 
 	metronome_enable(false);
