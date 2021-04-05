@@ -225,7 +225,7 @@ int ble_init(void)
 }
 
 #define BT_LE_ADV_CUSTOM                                                       \
-	BT_LE_ADV_PARAM(BT_LE_ADV_OPT_CONNECTABLE | BT_LE_ADV_OPT_ONE_TIME,    \
+	BT_LE_ADV_PARAM(BT_LE_ADV_OPT_CONNECTABLE, \
 			BT_GAP_ADV_SLOW_INT_MIN, BT_GAP_ADV_SLOW_INT_MAX,      \
 			NULL)
 
