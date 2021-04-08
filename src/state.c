@@ -46,9 +46,6 @@ void main_state_loop(void)
 			screen_clock_bcd();
 			main_state_set(PGM_STATE_CLOCK_BCD, PGM_STATE_STOPWATCH);
 			break;
-		case PGM_STATE_CLOCK_DIGITAL:
-			/* TODO: add digital screen */
-			break;
 		case PGM_STATE_STOPWATCH:
 			screen_stopwatch();
 			main_state_set(PGM_STATE_STOPWATCH, PGM_STATE_BLE);
@@ -58,10 +55,6 @@ void main_state_loop(void)
 			/* main_state_set(PGM_STATE_TEST); */
 			main_state_set(PGM_STATE_CLOCK_SET, PGM_STATE_CLOCK_BCD);
 			break;
-		/* case PGM_STATE_TEST: */
-		/* 	screen_test(); */
-		/* 	main_state_set(PGM_STATE_TEST, PGM_STATE_BATT); */
-		/* 	break; */
 		/* case PGM_STATE_BATT: */
 		/* 	screen_battery(); */
 		/* 	main_state_set(PGM_STATE_BATT, PGM_STATE_BLE); */

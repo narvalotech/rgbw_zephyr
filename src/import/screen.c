@@ -241,56 +241,6 @@ void screen_test_tilt(void)
 	display_clear();
 }
 
-void screen_test(void)
-{
-	/* Test HW functions:
-	 * - battery voltage divider enable
-	 * - motor driver enable */
-#define BATT_NODE DT_NODELABEL(batmon_en)
-#define BATT_PIN DT_GPIO_PIN(BATT_NODE, gpios)
-#define MOTOR_NODE DT_NODELABEL(hapt_gpio)
-#define MOTOR_PIN DT_GPIO_PIN(MOTOR_NODE, gpios)
-
-	uint8_t status_batt = 0;
-	uint8_t status_motor = 0;
-	const struct device *batt;
-	const struct device *motor;
-
-	batt = device_get_binding(DT_GPIO_LABEL(BATT_NODE, gpios));
-	motor = device_get_binding(DT_GPIO_LABEL(MOTOR_NODE, gpios));
-
-	display_clear();
-	display_mono_set_color(152, 6, 237); /* Purple */
-	display_string("test", 0, SCROLL_SPEED);
-	k_msleep(DISP_DELAY);
-
-	while(!state.exit_signal && !state.main)
-	{
-		if(state.but_ur == 1)
-		{
-			state.but_ur = 0;
-			/* Toggle battery connection */
-			status_batt ^= 0x01;
-			gpio_pin_set(batt, BATT_PIN, status_batt);
-		}
-		if(state.but_lr == 1)
-		{
-			state.but_lr = 0;
-			/* Toggle motor driver GPIO */
-			status_motor ^= 0x01;
-			gpio_pin_set(motor, MOTOR_PIN, status_motor);
-		}
-
-		display_bytes(0x88, status_batt, status_motor, 0);
-
-		/* Wait for next IRQ */
-		k_sleep(K_FOREVER);
-	}
-
-	state_clear();
-	display_clear();
-}
-
 static const struct battery_level_point levels[] = {
 /* See batt sample for explanation */
 	{ 10000, 3950 },
