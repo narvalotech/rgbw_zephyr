@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <string.h>
 #include <device.h>
 #include <devicetree.h>
 #include <drivers/gpio.h>
@@ -16,6 +17,7 @@
 #include "battery.h"
 #include "ble.h"
 #include "motor.h"
+#include "countdown.h"
 
 extern struct g_state state;
 
@@ -23,53 +25,60 @@ extern struct g_state state;
 #define DISP_DELAY 200
 #define SLEEP_TIMEOUT 10
 
-void screen_time_set(void)
+static int set_time(time_struct_t* p_time)
 {
-	time_struct_t newTime;
-
-	display_mono_set_color(255, 0, 0);
 	display_clear();
 	display_string("set time",0,SCROLL_SPEED);
 	k_msleep(DISP_DELAY);
 
 	if(state.exit_signal || state.main)
 	{
-		state_clear();
-		return;  
+		return -1;
 	}
 
 	display_string("  hours",0,SCROLL_SPEED);
 	k_msleep(DISP_DELAY);
-	newTime.hours = (uint8_t)numberSelector(12, 0, 23, DISPLAY_DIGITAL);
+	p_time->hours = (uint8_t)numberSelector(p_time->hours, 0, 23, DISPLAY_DIGITAL);
 	if(state.main)
 	{
-		state_clear();
-		return;
+		return -1;
 	}
 	k_msleep(DISP_DELAY);
 
 	display_string("  minutes",0,SCROLL_SPEED);
 	k_msleep(DISP_DELAY);
-	newTime.minutes = (uint8_t)numberSelector(0, 0, 59, DISPLAY_DIGITAL);
+	p_time->minutes = (uint8_t)numberSelector(p_time->minutes, 0, 59, DISPLAY_DIGITAL);
 	if(state.main)
 	{
-		state_clear();
-		return;
+		return -1;
 	}
 	k_msleep(DISP_DELAY);
 
 	display_string("  seconds",0,SCROLL_SPEED);
 	k_msleep(DISP_DELAY);
-	newTime.seconds = (uint8_t)numberSelector(0, 0, 59, DISPLAY_DIGITAL);
+	p_time->seconds = (uint8_t)numberSelector(p_time->seconds, 0, 59, DISPLAY_DIGITAL);
 	if(state.main)
 	{
-		state_clear();
-		return;
+		return -1;
 	}
 	k_msleep(DISP_DELAY);
 
-	clock_set_time(newTime);
-	display_string("  success  ",0,SCROLL_SPEED);
+	return 0;
+}
+
+void screen_time_set(void)
+{
+	time_struct_t newTime;
+
+	/* Start selector at current time */
+	memcpy(&newTime, clock_get_time_p(), sizeof(newTime));
+
+	display_mono_set_color(255, 0, 0);
+	if(!set_time(&newTime))
+	{
+		clock_set_time(newTime);
+		display_string("  success  ",0,SCROLL_SPEED);
+	}
 
 	state_clear();
 }
@@ -200,6 +209,71 @@ void screen_stopwatch(void)
 		else {
 			k_msleep(10);
 		}
+	}
+
+	state_clear();
+	display_clear();
+}
+
+void screen_countdown(void)
+{
+	uint32_t i = 0;
+	/* Default timer of 10 minutes  */
+	static time_struct_t init_time = {
+		0,
+		10,
+		0
+	};
+
+	display_clear();
+	display_mono_set_color(128, 29, 214); /* Purple-ish */
+	display_string("timer", 0, SCROLL_SPEED);
+	k_msleep(DISP_DELAY);
+
+	while(!state.exit_signal && !state.main)
+	{
+		i++;
+		if(i >= SLEEP_TIMEOUT)
+		{
+			i = 0;
+			board_suspend();
+		}
+
+		if (state.but_ur == 1) {
+			/* Start */
+			state.but_ur = 0;
+			cd_timer_start(&init_time);
+		}
+		else if (state.but_ur == 2) {
+			/* Stop */
+			state.but_ur = 0;
+			cd_timer_stop();
+		}
+
+		if (state.but_lr) {
+			state.but_lr = 0;
+			if(cd_timer_state_get() == CD_TIMER_STOPPED)
+			{
+				/* Select countdown time */
+				if(!set_time(&init_time)) {
+					/* Start timer */
+					cd_timer_start(&init_time);
+				}
+			} else {
+				/* restart timer with prev value */
+				cd_timer_start(&init_time);
+			}
+		}
+
+		time_struct_t* p_time = cd_timer_remaining_get();
+		display_bcd(p_time->hours,
+			    p_time->minutes,
+			    p_time->seconds,
+			    0);
+
+		/* Wait for either next timer tick or button
+		 * interrupt */
+		k_sleep(K_SECONDS(1));
 	}
 
 	state_clear();

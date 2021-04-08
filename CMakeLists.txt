@@ -37,6 +37,7 @@ set(APP_SRC
   src/board.c
   src/state.c
   src/stopwatch.c
+  src/countdown.c
   src/import/battery.c
   src/motor.c
   src/ble.c

@@ -48,7 +48,11 @@ void main_state_loop(void)
 			break;
 		case PGM_STATE_STOPWATCH:
 			screen_stopwatch();
-			main_state_set(PGM_STATE_STOPWATCH, PGM_STATE_BLE);
+			main_state_set(PGM_STATE_STOPWATCH, PGM_STATE_COUNTDOWN);
+			break;
+		case PGM_STATE_COUNTDOWN:
+			screen_countdown();
+			main_state_set(PGM_STATE_COUNTDOWN, PGM_STATE_BLE);
 			break;
 		case PGM_STATE_CLOCK_SET:
 			screen_time_set();
