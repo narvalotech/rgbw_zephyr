@@ -4,6 +4,13 @@
 #define DISPLAY_BCD 1
 #define DISPLAY_DIGITAL 2
 
+#define DISP_FX_FADE 0
+#define DISP_FX_SLIDE 1
+#define DISP_FX_DIR_LEFT 0
+#define DISP_FX_DIR_RIGHT 1
+#define DISP_FX_DIR_IN 1
+#define DISP_FX_DIR_OUT 0
+
 void display_init();
 void display_refresh();
 void display_clear();

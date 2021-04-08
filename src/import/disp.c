@@ -85,10 +85,10 @@ void display_refresh()
 	{
 		fade.pending = 0;
 
-		if(fade.fx_type==1)
+		if(fade.fx_type==DISP_FX_SLIDE)
 			display_animate_slide(fade.dir, fade.time);
 
-		if(fade.fx_type==0 && fade.dir)
+		if(fade.fx_type==DISP_FX_FADE && fade.dir==DISP_FX_DIR_IN)
 			display_fade(fade.dir, fade.time);
 	}
 
@@ -112,10 +112,10 @@ void display_clear() {
 	{
 		fade.pending = 0;
 
-		if(fade.fx_type==1)
+		if(fade.fx_type==DISP_FX_SLIDE)
 			display_animate_slide(fade.dir, fade.time);
 
-		if(fade.fx_type==0 && !fade.dir)
+		if(fade.fx_type==DISP_FX_FADE && fade.dir==DISP_FX_DIR_OUT)
 			display_fade(fade.dir, fade.time);
 	}
 	else

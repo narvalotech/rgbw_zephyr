@@ -94,7 +94,7 @@ void screen_clock_bcd(void)
 		{
 			i = 0;
 			/* Dim leds before turning off */
-			display_fade_next(0, 500, 0);
+			display_fade_next(DISP_FX_DIR_OUT, 500, DISP_FX_FADE);
 			board_suspend();
 		}
 		if(state.but_ur == 2)
