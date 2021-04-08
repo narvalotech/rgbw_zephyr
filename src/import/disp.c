@@ -59,9 +59,11 @@ void display_init() {
 /* Uses disp_color[] global variable */
 void display_mono_led(uint8_t intensity, uint32_t led_pos)
 {
-    rgb_led_set_led_scale(p_led_cfg,
-						  disp_color[0], disp_color[1], disp_color[2],
-						  intensity, led_pos, false);
+	rgb_led_set_led_scale(p_led_cfg,
+			      disp_color[0],
+			      disp_color[1],
+			      disp_color[2],
+			      intensity, led_pos, false);
 }
 
 void display_mono_set_color(uint8_t red, uint8_t green, uint8_t blue)

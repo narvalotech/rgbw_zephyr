@@ -1,13 +1,9 @@
 #ifndef __DISP_H__
 #define __DISP_H__
 
-#include <stdint.h>
-#include <stdbool.h>
-
 #define DISPLAY_BCD 1
 #define DISPLAY_DIGITAL 2
 
-void acc_arrow();
 void display_init();
 void display_refresh();
 void display_clear();
