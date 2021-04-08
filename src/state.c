@@ -20,7 +20,7 @@ void state_clear(void)
 void main_state_set(pgm_state_t curr_state, pgm_state_t new_state)
 {
 	if(state.main) {
-		state.pgm_state = PGM_STATE_CLOCK_BCD;
+		state.pgm_state = PGM_STATE_CLOCK;
 		state.main = 0;
 	}
 	else if(state.hibernate) {
@@ -40,11 +40,11 @@ void main_state_loop(void)
 	{
 		case PGM_STATE_TEST_TILT:
 			screen_test_tilt();
-			main_state_set(PGM_STATE_TEST_TILT, PGM_STATE_CLOCK_BCD);
+			main_state_set(PGM_STATE_TEST_TILT, PGM_STATE_CLOCK);
 			break;
-		case PGM_STATE_CLOCK_BCD:
-			screen_clock_bcd();
-			main_state_set(PGM_STATE_CLOCK_BCD, PGM_STATE_STOPWATCH);
+		case PGM_STATE_CLOCK:
+			screen_clock();
+			main_state_set(PGM_STATE_CLOCK, PGM_STATE_STOPWATCH);
 			break;
 		case PGM_STATE_STOPWATCH:
 			screen_stopwatch();
@@ -53,7 +53,7 @@ void main_state_loop(void)
 		case PGM_STATE_CLOCK_SET:
 			screen_time_set();
 			/* main_state_set(PGM_STATE_TEST); */
-			main_state_set(PGM_STATE_CLOCK_SET, PGM_STATE_CLOCK_BCD);
+			main_state_set(PGM_STATE_CLOCK_SET, PGM_STATE_CLOCK);
 			break;
 		/* case PGM_STATE_BATT: */
 		/* 	screen_battery(); */

@@ -57,7 +57,7 @@ void main(void)
 
 	ble_init();
 
-	state.pgm_state = PGM_STATE_CLOCK_BCD;
+	state.pgm_state = PGM_STATE_CLOCK;
 	while(1)
 	{
 		main_state_loop();

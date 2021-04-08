@@ -74,7 +74,7 @@ void screen_time_set(void)
 	state_clear();
 }
 
-void screen_clock_bcd(void)
+void screen_clock(void)
 {
 	display_mono_set_color(255, 160, 0);
 
@@ -116,8 +116,23 @@ void screen_clock_bcd(void)
 			}
 			arm_reset = 2;
 		}
-		display_bcd(p_time->hours, p_time->minutes, p_time->seconds, 0);
-		clock_thread_sync();
+
+		if(state.but_lr) {
+			/* Display digital time when user presses lower-right button */
+			state.but_lr = 0;
+			display_number(p_time->hours, 2000);
+			display_fade_next(DISP_FX_DIR_RIGHT, 300, DISP_FX_SLIDE);
+
+			display_number(p_time->minutes, 2000);
+			display_fade_next(DISP_FX_DIR_RIGHT, 300, DISP_FX_SLIDE);
+
+			/* Go to sleep right away */
+			i = SLEEP_TIMEOUT;
+		} else {
+			/* Any other wakeup source will display in BCD format */
+			display_bcd(p_time->hours, p_time->minutes, p_time->seconds, 0);
+			clock_thread_sync();
+		}
 	}
 
 	if(arm_reset == 2) {
