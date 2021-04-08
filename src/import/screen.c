@@ -93,6 +93,8 @@ void screen_clock_bcd(void)
 		if(i >= SLEEP_TIMEOUT)
 		{
 			i = 0;
+			/* Dim leds before turning off */
+			display_fade_next(0, 500, 0);
 			board_suspend();
 		}
 		if(state.but_ur == 2)
