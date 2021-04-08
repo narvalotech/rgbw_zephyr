@@ -28,17 +28,17 @@ set(CMAKE_BUILD_TYPE Release)
 set(APP_SRC
   src/main.c
   src/rgb_led.c
-  src/import/disp.c
-  src/import/clock.c
-  src/import/accel.c
-  src/import/menu.c
-  src/import/screen.c
+  src/disp.c
+  src/clock.c
+  src/accel.c
+  src/menu.c
+  src/screen.c
   src/pinmux.c
   src/board.c
   src/state.c
   src/stopwatch.c
   src/countdown.c
-  src/import/battery.c
+  src/battery.c
   src/motor.c
   src/ble.c
   src/cts.c
@@ -46,7 +46,7 @@ set(APP_SRC
 
 set(APP_INCLUDE
   include
-  include/import
+  include
   )
 
 target_sources(app PRIVATE ${APP_SRC})
