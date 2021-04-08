@@ -162,10 +162,18 @@ void screen_stopwatch(void)
 			}
 		}
 
-		display_bcd(stopwatch_minutes_get(0),
-			stopwatch_seconds_get(0),
-			stopwatch_cents_get(0),
-			0);
+		stopwatch_time_t *p_time = stopwatch_time_get(0);
+		if (p_time->hours) {
+			display_bcd(p_time->hours,
+				    p_time->minutes,
+				    p_time->seconds,
+				    0);
+		} else {
+			display_bcd(p_time->minutes,
+				    p_time->seconds,
+				    p_time->cents,
+				    0);
+		}
 
 		/* Wait for either next timer tick or button
 		 * interrupt */

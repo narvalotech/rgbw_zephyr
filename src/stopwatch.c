@@ -1,32 +1,31 @@
 #include <zephyr.h>
+#include <string.h>
 #include "stopwatch.h"
 
-static uint64_t time = 0;	/* Total time in ms */
-static uint8_t cents = 0;
-static uint8_t seconds = 0;
-static uint8_t minutes = 0;
+static stopwatch_time_t time;
 static stopwatch_state_t state = STW_STOPPED;
-
 struct k_timer stopwatch_timer;
+
 static void stopwatch_timer_callback(struct k_timer *timer_id)
 {
 	if(state != STW_STOPPED)
 	{
-		time += 10;
-		cents += 1;
-		if(cents == 100)
+		time.ms += 10;
+		time.cents += 1;
+		if(time.cents == 100)
 		{
-			cents = 0;
-			seconds += 1;
+			time.cents = 0;
+			time.seconds += 1;
 		}
-		if(seconds == 60)
+		if(time.seconds == 60)
 		{
-			seconds = 0;
-			minutes += 1;
+			time.seconds = 0;
+			time.minutes += 1;
 		}
-		if(minutes == 60)
+		if(time.minutes == 60)
 		{
-			minutes = 0;
+			time.minutes = 0;
+			time.hours += 1;
 		}
 	}
 }
@@ -72,10 +71,7 @@ stopwatch_state_t stopwatch_toggle(uint8_t channel)
 void stopwatch_reset(uint8_t channel)
 {
 	ARG_UNUSED(channel);
-	time = 0;
-	cents = 0;
-	seconds = 0;
-	minutes = 0;
+	memset(&time, 0, sizeof(time));
 	state = STW_STOPPED;
 }
 
@@ -85,26 +81,38 @@ stopwatch_state_t stopwatch_state_get(uint8_t channel)
 	return state;
 }
 
+stopwatch_time_t* stopwatch_time_get(uint8_t channel)
+{
+	ARG_UNUSED(channel);
+	return &time;
+}
+
 uint32_t stopwatch_ms_get(uint8_t channel)
 {
 	ARG_UNUSED(channel);
-	return time;
+	return time.ms;
 }
 
 uint8_t stopwatch_cents_get(uint8_t channel)
 {
 	ARG_UNUSED(channel);
-	return cents;
+	return time.cents;
 }
 
 uint8_t stopwatch_seconds_get(uint8_t channel)
 {
 	ARG_UNUSED(channel);
-	return seconds;
+	return time.seconds;
 }
 
 uint8_t stopwatch_minutes_get(uint8_t channel)
 {
 	ARG_UNUSED(channel);
-	return minutes;
+	return time.minutes;
+}
+
+uint8_t stopwatch_hours_get(uint8_t channel)
+{
+	ARG_UNUSED(channel);
+	return time.hours;
 }
