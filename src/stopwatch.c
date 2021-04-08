@@ -27,6 +27,11 @@ static void stopwatch_timer_callback(struct k_timer *timer_id)
 			time.minutes = 0;
 			time.hours += 1;
 		}
+		if(time.hours > 99)
+		{
+			/* Can't display more than 99 in BCD mode */
+			time.hours = 0;
+		}
 	}
 }
 
