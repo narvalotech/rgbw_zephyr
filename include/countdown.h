@@ -14,7 +14,7 @@ typedef enum {
 void cd_timer_start(time_struct_t* p_time);
 
 void cd_timer_stop(void);
-time_struct_t* cd_timer_remaining_get(void);
+void cd_timer_remaining_get(time_struct_t* time);
 
 /* register a callback to be called on timer expiry */
 void cd_timer_expiry_register_fn(void (*callback_fn)(void));

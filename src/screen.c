@@ -234,6 +234,7 @@ void screen_countdown(void)
 		10,
 		0
 	};
+	time_struct_t rem_time = {0, 0, 0};
 
 	display_clear();
 	display_mono_set_color(128, 29, 214); /* Purple-ish */
@@ -255,6 +256,7 @@ void screen_countdown(void)
 			cd_timer_start(&init_time);
 			display_string("start", 0, SCROLL_SPEED);
 		}
+
 		else if (state.but_ur == 2) {
 			/* Stop */
 			state.but_ur = 0;
@@ -273,17 +275,13 @@ void screen_countdown(void)
 					state_clear();
 					display_string("start", 0, SCROLL_SPEED);
 				}
-			} else {
-				/* restart timer with prev value */
-				cd_timer_start(&init_time);
-				display_string("restart", 0, SCROLL_SPEED);
 			}
 		}
 
-		time_struct_t* p_time = cd_timer_remaining_get();
-		display_bcd(p_time->hours,
-			    p_time->minutes,
-			    p_time->seconds,
+		cd_timer_remaining_get(&rem_time);
+		display_bcd(rem_time.hours,
+			    rem_time.minutes,
+			    rem_time.seconds,
 			    0);
 
 		/* Wait for either next timer tick or button

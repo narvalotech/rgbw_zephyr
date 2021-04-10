@@ -7,7 +7,6 @@
 
 #define PULSE_TIME_MS 500
 static cd_timer_state_t state = CD_TIMER_STOPPED;
-static time_struct_t rem_time;
 struct k_timer cd_timer;
 static void (*user_callback)(void);
 struct k_work cd_timer_work;
@@ -27,16 +26,12 @@ static uint32_t time_to_s(time_struct_t* p_time)
 static void s_to_time(uint32_t seconds, time_struct_t* p_time)
 {
 	p_time->hours = seconds / (60 * 60);
-	seconds /= 60 * 60;
-	p_time->minutes = seconds / 60;
-	seconds /= 60;
-	p_time->seconds = seconds;
-}
+	seconds -= p_time->hours * 60 * 60;
 
-static void store_rem_time(void)
-{
-	uint32_t rem_sec = k_timer_remaining_get(&cd_timer) / 1000;
-	s_to_time(rem_sec, &rem_time);
+	p_time->minutes = seconds / 60;
+	seconds -= p_time->minutes * 60;
+
+	p_time->seconds = seconds;
 }
 
 static void cd_timer_callback(struct k_timer *timer_id)
@@ -46,7 +41,7 @@ static void cd_timer_callback(struct k_timer *timer_id)
 		user_callback();
 	}
 	k_work_submit(&cd_timer_work);
-	k_timer_stop(&cd_timer);
+	cd_timer_stop();
 }
 
 K_TIMER_DEFINE(cd_timer, cd_timer_callback, NULL);
@@ -64,9 +59,6 @@ void cd_timer_thread_sync(void)
 
 void cd_timer_start(time_struct_t* p_time)
 {
-	/* Store total time in seconds */
-	memcpy(&rem_time, p_time, sizeof(rem_time));
-
 	/* Start timer */
 	k_timer_start(&cd_timer, K_SECONDS(time_to_s(p_time)), K_NO_WAIT);
 	state = CD_TIMER_STARTED;
@@ -78,10 +70,10 @@ void cd_timer_stop(void)
 	state = CD_TIMER_STOPPED;
 }
 
-time_struct_t* cd_timer_remaining_get(void)
+void cd_timer_remaining_get(time_struct_t* p_time)
 {
-	store_rem_time();
-	return &rem_time;
+	uint32_t rem_sec = k_timer_remaining_get(&cd_timer) / 1000;
+	s_to_time(rem_sec, p_time);
 }
 
 void cd_timer_expiry_register_fn(void (*callback_fn)(void))
