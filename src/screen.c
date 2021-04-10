@@ -243,11 +243,13 @@ void screen_countdown(void)
 			/* Start */
 			state.but_ur = 0;
 			cd_timer_start(&init_time);
+			display_string("start", 0, SCROLL_SPEED);
 		}
 		else if (state.but_ur == 2) {
 			/* Stop */
 			state.but_ur = 0;
 			cd_timer_stop();
+			display_string("stop", 0, SCROLL_SPEED);
 		}
 
 		if (state.but_lr) {
@@ -258,10 +260,13 @@ void screen_countdown(void)
 				if(!set_time(&init_time)) {
 					/* Start timer */
 					cd_timer_start(&init_time);
+					state_clear();
+					display_string("start", 0, SCROLL_SPEED);
 				}
 			} else {
 				/* restart timer with prev value */
 				cd_timer_start(&init_time);
+				display_string("restart", 0, SCROLL_SPEED);
 			}
 		}
 
