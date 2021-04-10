@@ -130,10 +130,10 @@ void screen_clock(void)
 			/* Display digital time when user presses lower-right button */
 			state.but_lr = 0;
 			display_number(p_time->hours, 2000);
-			display_fade_next(DISP_FX_DIR_RIGHT, 300, DISP_FX_SLIDE);
+			display_fade_next(DISP_FX_DIR_RIGHT, 1000, DISP_FX_SLIDE);
 
 			display_number(p_time->minutes, 2000);
-			display_fade_next(DISP_FX_DIR_RIGHT, 300, DISP_FX_SLIDE);
+			display_fade_next(DISP_FX_DIR_RIGHT, 1000, DISP_FX_SLIDE);
 
 			/* Go to sleep right away */
 			i = SLEEP_TIMEOUT;
