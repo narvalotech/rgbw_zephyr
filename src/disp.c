@@ -274,9 +274,9 @@ void display_fade(bool dir, uint32_t fade_time)
 {
 	for(uint32_t i=0; i < fade_time; i++)
 	{
-		if(dir)					/* Fade in */
+		if(dir==DISP_FX_DIR_IN) /* Fade in */
 			display[3] = (uint8_t)((255 * i) / fade_time);
-		else					/* Fade out */
+		else
 			display[3] = (uint8_t)(255 - ((255 * i) / fade_time));
 
 		display_refresh();
