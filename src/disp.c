@@ -88,7 +88,7 @@ void display_refresh()
 		if(fade.fx_type==DISP_FX_SLIDE)
 			display_animate_slide(fade.dir, fade.time);
 
-		if(fade.fx_type==DISP_FX_FADE && fade.dir==DISP_FX_DIR_IN)
+		if((fade.fx_type==DISP_FX_FADE) && (fade.dir==DISP_FX_DIR_IN))
 			display_fade(fade.dir, fade.time);
 	}
 
@@ -115,7 +115,7 @@ void display_clear() {
 		if(fade.fx_type==DISP_FX_SLIDE)
 			display_animate_slide(fade.dir, fade.time);
 
-		if(fade.fx_type==DISP_FX_FADE && fade.dir==DISP_FX_DIR_OUT)
+		if((fade.fx_type==DISP_FX_FADE) && (fade.dir==DISP_FX_DIR_OUT))
 			display_fade(fade.dir, fade.time);
 	}
 	else
@@ -139,7 +139,7 @@ void display_write_matrix(uint8_t p_matrix[8][3], bool fade, bool clear_state)
 		if(!active[j][0])
 			active[j][0] = p_matrix[j][0];
 
-		if(fade && active[j][0] && s_pixel_here(j, 0))
+		if((fade) && (active[j][0]) && (s_pixel_here(j, 0)))
 			display_mono_led(255, j);
 		else
 			display_mono_led(p_matrix[j][0], j);
@@ -150,7 +150,7 @@ void display_write_matrix(uint8_t p_matrix[8][3], bool fade, bool clear_state)
 		if(!active[j][1])
 			active[j][1] = p_matrix[j][1];
 
-		if(fade && active[j][1] && s_pixel_here(j, 1))
+		if((fade) && (active[j][1]) && (s_pixel_here(j, 1)))
 			display_mono_led(255, 15-j);
 		else
 			display_mono_led(p_matrix[j][0], 15-j);
@@ -161,7 +161,7 @@ void display_write_matrix(uint8_t p_matrix[8][3], bool fade, bool clear_state)
 		if(!active[j][2])
 			active[j][2] = p_matrix[j][2];
 
-		if(fade && active[j][2] && s_pixel_here(j, 2))
+		if((fade) && (active[j][2]) && (s_pixel_here(j, 2)))
 			display_mono_led(255, j+16);
 		else
 			display_mono_led(p_matrix[j][0], j+16);
@@ -301,7 +301,7 @@ void display_animate_slide(bool dir, uint32_t time)
 
 	time /= 16;
 
-	if(dir)
+	if(dir == DISP_FX_DIR_RIGHT)
 	{
 		/* Update first row */
 		matrix[0][0] = 255;
