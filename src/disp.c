@@ -301,7 +301,7 @@ void display_animate_slide(bool dir, uint32_t time)
 
 	time /= 16;
 
-	if(dir == DISP_FX_DIR_RIGHT)
+	if(dir == DISP_FX_DIR_LEFT)
 	{
 		/* Update first row */
 		matrix[0][0] = 255;
