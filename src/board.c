@@ -58,8 +58,6 @@ static void button_callback(const struct device *dev, struct gpio_callback *cb,
 {
 	gpio_port_value_t port_val = 0;
 
-	k_wakeup(state.main_tid); /* Wake from sleep */
-
 	/* All pushbuttons are on the same port */
 	dev = device_get_binding(DT_GPIO_LABEL(DT_ALIAS(sw0), gpios));
 	gpio_port_get(dev, &port_val);
@@ -73,6 +71,8 @@ static void button_callback(const struct device *dev, struct gpio_callback *cb,
 		k_timer_start(&button_timer, K_SECONDS(1), K_NO_WAIT);
 		return;
 	}
+
+	k_wakeup(state.main_tid); /* Wake from sleep */
 
 	if (pins & (1 << SW_0_PIN))
 	{
