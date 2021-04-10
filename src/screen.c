@@ -302,6 +302,7 @@ void screen_test_tilt(void)
 
 	display_mono_set_color(86, 213, 245);
 
+	display_fade_next(DISP_FX_DIR_IN, 500, DISP_FX_FADE);
 	while(!state.exit_signal && !state.main)
 	{
 		accel_get_mg(accel);
@@ -340,6 +341,8 @@ void screen_test_tilt(void)
 	}
 
 	state_clear();
+
+	display_fade_next(DISP_FX_DIR_OUT, 500, DISP_FX_FADE);
 	display_clear();
 }
 
