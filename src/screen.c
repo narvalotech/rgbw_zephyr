@@ -118,8 +118,8 @@ void screen_clock(void)
 		}
 		if(state.but_lr == 2)
 		{
+			state.but_lr = 0;
 			if(!arm_reset) {
-				state.but_lr = 0;
 				state.pgm_state = PGM_STATE_CLOCK_SET;
 				break;
 			}
