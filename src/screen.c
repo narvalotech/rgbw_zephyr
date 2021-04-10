@@ -106,6 +106,7 @@ void screen_clock(void)
 			display_fade_next(DISP_FX_DIR_OUT, 500, DISP_FX_FADE);
 			board_suspend();
 		}
+
 		if(state.but_ur == 2)
 		{
 			state.but_ur = 0;
@@ -116,6 +117,7 @@ void screen_clock(void)
 				arm_reset = 0;
 			}
 		}
+
 		if(state.but_lr == 2)
 		{
 			state.but_lr = 0;
@@ -129,11 +131,11 @@ void screen_clock(void)
 		if(state.but_lr) {
 			/* Display digital time when user presses lower-right button */
 			state.but_lr = 0;
-			display_number(p_time->hours, 2000);
-			display_fade_next(DISP_FX_DIR_RIGHT, 1000, DISP_FX_SLIDE);
+			display_fade_next(DISP_FX_DIR_IN, 500, DISP_FX_FADE);
+			display_number(p_time->hours, 1000);
 
-			display_number(p_time->minutes, 2000);
-			display_fade_next(DISP_FX_DIR_RIGHT, 1000, DISP_FX_SLIDE);
+			display_fade_next(DISP_FX_DIR_IN, 500, DISP_FX_FADE);
+			display_number(p_time->minutes, 1000);
 
 			/* Go to sleep right away */
 			i = SLEEP_TIMEOUT;
