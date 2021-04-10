@@ -27,6 +27,8 @@ extern struct g_state state;
 
 static int set_time(time_struct_t* p_time)
 {
+	time_struct_t time = {0, 0, 0};
+
 	display_clear();
 	display_string("set time",0,SCROLL_SPEED);
 	k_msleep(DISP_DELAY);
@@ -38,7 +40,7 @@ static int set_time(time_struct_t* p_time)
 
 	display_string("  hours",0,SCROLL_SPEED);
 	k_msleep(DISP_DELAY);
-	p_time->hours = (uint8_t)numberSelector(p_time->hours, 0, 23, DISPLAY_DIGITAL);
+	time.hours = (uint8_t)numberSelector(p_time->hours, 0, 23, DISPLAY_DIGITAL);
 	if(state.main)
 	{
 		return -1;
@@ -47,7 +49,7 @@ static int set_time(time_struct_t* p_time)
 
 	display_string("  minutes",0,SCROLL_SPEED);
 	k_msleep(DISP_DELAY);
-	p_time->minutes = (uint8_t)numberSelector(p_time->minutes, 0, 59, DISPLAY_DIGITAL);
+	time.minutes = (uint8_t)numberSelector(p_time->minutes, 0, 59, DISPLAY_DIGITAL);
 	if(state.main)
 	{
 		return -1;
@@ -56,12 +58,18 @@ static int set_time(time_struct_t* p_time)
 
 	display_string("  seconds",0,SCROLL_SPEED);
 	k_msleep(DISP_DELAY);
-	p_time->seconds = (uint8_t)numberSelector(p_time->seconds, 0, 59, DISPLAY_DIGITAL);
+	time.seconds = (uint8_t)numberSelector(p_time->seconds, 0, 59, DISPLAY_DIGITAL);
 	if(state.main)
 	{
 		return -1;
 	}
 	k_msleep(DISP_DELAY);
+
+	/* If we were not aborted during whole selection process
+	 * then save selection. */
+	p_time->hours = time.hours;
+	p_time->minutes = time.minutes;
+	p_time->seconds = time.seconds;
 
 	return 0;
 }
