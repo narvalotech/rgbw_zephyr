@@ -103,9 +103,6 @@ void display_refresh()
 }
 
 void display_clear() {
-	display[0] = 0;
-	display[1] = 0;
-	display[2] = 0;
 	display[3] = 255;
 
 	if(fade.pending)
@@ -122,6 +119,10 @@ void display_clear() {
 	{
 		rgb_led_set_all(p_led_cfg, 0, 0, 0, true);
 	}
+
+	display[0] = 0;
+	display[1] = 0;
+	display[2] = 0;
 }
 
 void display_write_matrix(uint8_t p_matrix[8][3], bool fade, bool clear_state)
