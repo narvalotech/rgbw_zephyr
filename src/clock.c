@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <zephyr.h>
+#include "calendar.h"
 #include "clock.h"
 
 time_struct_t currentTime;
@@ -85,7 +86,9 @@ void clock_increment_seconds(uint32_t seconds)
 			currentTime.hours++;
 			currentTime.minutes = 0;
 		}
-		if(currentTime.hours == 24)
+		if(currentTime.hours == 24) {
 			currentTime.hours = 0;
+			cal_increment_day();
+		}
 	}
 }

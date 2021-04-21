@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdio.h>
 #include <string.h>
 #include <device.h>
 #include <devicetree.h>
@@ -18,12 +19,64 @@
 #include "ble.h"
 #include "motor.h"
 #include "countdown.h"
+#include "cts.h"
+#include "calendar.h"
 
 extern struct g_state state;
 
 #define SCROLL_SPEED 50
 #define DISP_DELAY 200
 #define SLEEP_TIMEOUT 10
+
+static int set_date(struct date_time* p_date)
+{
+	struct date_time date;
+	memset(&date, 0, sizeof(date));
+
+	display_clear();
+	display_string("set date",0,SCROLL_SPEED);
+	k_msleep(DISP_DELAY);
+
+	if(state.exit_signal || state.main)
+	{
+		return -1;
+	}
+
+	display_string("  year", 0, SCROLL_SPEED);
+	k_msleep(DISP_DELAY);
+	date.year = 2000 + numberSelector(p_date->year, 0, 99, DISPLAY_DIGITAL);
+	if(state.main)
+	{
+		return -1;
+	}
+	k_msleep(DISP_DELAY);
+
+	display_string("  month", 0, SCROLL_SPEED);
+	k_msleep(DISP_DELAY);
+	date.month = numberSelector(p_date->month, 1, 12, DISPLAY_DIGITAL) - 1;
+	if(state.main)
+	{
+		return -1;
+	}
+	k_msleep(DISP_DELAY);
+
+	display_string("  day", 0, SCROLL_SPEED);
+	k_msleep(DISP_DELAY);
+	date.day = numberSelector(p_date->day, 1, 31, DISPLAY_DIGITAL) - 1;
+	if(state.main)
+	{
+		return -1;
+	}
+	k_msleep(DISP_DELAY);
+
+	/* If we were not aborted during whole selection process
+	 * then save selection. */
+	p_date->year = date.year;
+	p_date->month = date.month;
+	p_date->day = date.day;
+
+	return 0;
+}
 
 static int set_time(time_struct_t* p_time)
 {
@@ -97,6 +150,7 @@ void screen_clock(void)
 
 	/* Live time value pointer */
 	time_struct_t* p_time = clock_get_time_p();
+	char date_buf[30] = {0};
 
 	display_clear();
 	display_string("clock", 0, SCROLL_SPEED);
@@ -113,6 +167,35 @@ void screen_clock(void)
 			/* Dim leds before turning off */
 			display_fade_next(DISP_FX_DIR_OUT, 500, DISP_FX_FADE);
 			board_suspend();
+		}
+
+		if(state.but_ur == 1) {
+			state.but_ur = 0;
+			if(i == 0) {
+				/* When waking up from sleep, display time in BCD */
+				display_bcd(p_time->hours,
+					    p_time->minutes,
+					    p_time->seconds, 0);
+				clock_thread_sync();
+			} else {
+				/* If already woken up, display current date */
+				sprintf(date_buf, "  %d %s %d  ",
+					cal_get_day(),
+					cal_month_string[cal_get_month()],
+					cal_get_year());
+				display_string(date_buf, 0, SCROLL_SPEED);
+				display_clear();
+				/* Go to sleep right away */
+				i = SLEEP_TIMEOUT;
+				if(state.but_ur) {
+					/* If user pressed button during date display,
+					 * then set the date. */
+					struct date_time date;
+					if(set_date(&date) == 0) {
+						cal_set_date(&date);
+					}
+				}
+			}
 		}
 
 		if(state.but_ur == 2)

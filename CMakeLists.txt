@@ -42,6 +42,7 @@ set(APP_SRC
   src/motor.c
   src/ble.c
   src/cts.c
+  src/calendar.c
   )
 
 set(APP_INCLUDE
