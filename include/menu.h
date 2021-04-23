@@ -4,7 +4,7 @@
 #define STYLE_MOVEMENT 1
 #define STYLE_2D_TAPS  2
 
-typedef struct 
+typedef struct
 {
 	int8_t x;
 	int8_t y;
@@ -17,10 +17,10 @@ typedef struct
 	uint8_t double_tap;
 } tap_struct_t;
 
-uint8_t 
+uint8_t
 itemSelector(char* itemNames, uint8_t inputStyle);
 
-uint16_t 
+uint32_t
 numberSelector(uint16_t defaultNum, uint16_t startNum, uint16_t endNum, uint8_t displayType);
 
 #endif

@@ -36,7 +36,7 @@ int abs(int val)
 	return val;
 }
 
-uint16_t numberSelector(uint16_t defaultNum,
+uint32_t numberSelector(uint16_t defaultNum,
 			uint16_t startNum,
 			uint16_t endNum,
 			uint8_t displayType)
