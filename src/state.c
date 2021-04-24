@@ -65,7 +65,7 @@ void main_state_loop(void)
 		/* 	break; */
 		case PGM_STATE_BLE:
 			screen_ble();
-			main_state_set(PGM_STATE_BLE, PGM_STATE_TEST_TILT);
+			main_state_set(PGM_STATE_BLE, PGM_STATE_CLOCK);
 			break;
 		case PGM_STATE_CHARGE:
 			/* TODO: add charging screen */
