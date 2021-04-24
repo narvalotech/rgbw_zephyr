@@ -5,6 +5,8 @@
 #include <string.h>
 #include "rgb_led.h"
 #include "disp.h"
+#include "cts.h"
+#include "calendar.h"
 #include "clock.h"
 #include "board.h"
 #include "accel.h"
@@ -37,6 +39,8 @@ void main(void)
 	clock_time_init();
 	time_struct_t new_time = {12, 0, 0};
 	clock_set_time(new_time);
+	struct date_time new_date = {0, 0, 0, 0, 0, 0};
+	cal_set_date(&new_date);
 
 	/* Init accelerometer lib */
 	accel_init();
