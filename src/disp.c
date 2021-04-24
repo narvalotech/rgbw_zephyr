@@ -238,17 +238,34 @@ void display_string(char* string, uint16_t repeat, uint16_t scrollspeed) {
 		for(;string[j] != 0;j++) {
 
 			currentChar = string[j];
-			if((currentChar<'a' || currentChar>'z') && currentChar!=' ') return;
-			if(currentChar == ' ') currentChar = 0x7B; // conversion from ASCII space to current alphabet
+			if(currentChar >= 'A' && currentChar <= 'Z') {
+				/* Convert upper case to lower case */
+				currentChar += 'a' - 'A';
+			} else if(currentChar == ' ') {
+				currentChar = 0x7B;
+			} else if (currentChar >= '0' && currentChar <= '9') {
+				/* Do nothing */
+			} else if (currentChar < 'a' || currentChar > 'z') {
+				/* Convert any other char to a dash */
+				currentChar = 0x7C;
+			}
 
 			for(i=5;i>0;i--) {
 				display[0] = (display[0]<<1);
 				display[1] = (display[1]<<1);
 				display[2] = (display[2]<<1);
 
-				display[0] += (letters[0][currentChar - 'a']>>i) & 1;
-				display[1] += (letters[1][currentChar - 'a']>>i) & 1;
-				display[2] += (letters[2][currentChar - 'a']>>i) & 1;
+				if(currentChar >= '0' && currentChar <= '9') {
+					/* Handle numbers */
+					display[0] += (numbers[0][currentChar - '0']>>(i-1)) & 1;
+					display[1] += (numbers[1][currentChar - '0']>>(i-1)) & 1;
+					display[2] += (numbers[2][currentChar - '0']>>(i-1)) & 1;
+				} else {
+					/* Handle letters */
+					display[0] += (letters[0][currentChar - 'a']>>i) & 1;
+					display[1] += (letters[1][currentChar - 'a']>>i) & 1;
+					display[2] += (letters[2][currentChar - 'a']>>i) & 1;
+				}
 				display_refresh();
 				if(disp_delay_ms(scrollspeed)) return;
 			}
@@ -261,9 +278,17 @@ void display_string(char* string, uint16_t repeat, uint16_t scrollspeed) {
 				display[1] = (display[1]<<1);
 				display[2] = (display[2]<<1);
 
-				display[0] += (letters[0][currentChar - 'a']>>i) & 1;
-				display[1] += (letters[1][currentChar - 'a']>>i) & 1;
-				display[2] += (letters[2][currentChar - 'a']>>i) & 1;
+				if(currentChar >= '0' && currentChar <= '9') {
+					/* Handle numbers */
+					display[0] += (numbers[0][currentChar - '0']>>(i-1)) & 1;
+					display[1] += (numbers[1][currentChar - '0']>>(i-1)) & 1;
+					display[2] += (numbers[2][currentChar - '0']>>(i-1)) & 1;
+				} else {
+					/* Handle letters */
+					display[0] += (letters[0][currentChar - 'a']>>i) & 1;
+					display[1] += (letters[1][currentChar - 'a']>>i) & 1;
+					display[2] += (letters[2][currentChar - 'a']>>i) & 1;
+				}
 				display_refresh();
 				if(disp_delay_ms(scrollspeed)) return;
 			}
