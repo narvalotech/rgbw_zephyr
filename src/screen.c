@@ -184,7 +184,6 @@ void screen_clock(void)
 					cal_month_string[cal_get_month()],
 					cal_get_year());
 				display_string(date_buf, 0, SCROLL_SPEED);
-				display_clear();
 				/* Go to sleep right away */
 				i = SLEEP_TIMEOUT;
 				if(state.but_ur) {
@@ -195,6 +194,9 @@ void screen_clock(void)
 						cal_set_date(&date);
 					}
 				}
+				display_clear();
+				i = 0;
+				board_suspend();
 			}
 		}
 
