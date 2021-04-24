@@ -20,6 +20,7 @@
 
 #include "cts.h"
 #include "clock.h"
+#include "calendar.h"
 
 #define LOG_LEVEL CONFIG_BT_CTS_LOG_LEVEL
 #include <logging/log.h>
@@ -101,12 +102,15 @@ static int cts_init(const struct device *dev)
 struct current_time *bt_cts_get_current_time(void)
 {
 	time_struct_t * p_time = clock_get_time_p();
-	current_local_time.exact_time_256.day_date_time.date_time.
-		hours = p_time->hours;
-	current_local_time.exact_time_256.day_date_time.date_time.
-		minutes = p_time->minutes;
-	current_local_time.exact_time_256.day_date_time.date_time.
-		seconds = p_time->seconds;
+	struct date_time* p_date = cal_get_date_ptr();
+
+	/* Copy time section */
+	memcpy(&current_local_time.exact_time_256.day_date_time.date_time.hours,
+	       p_time, sizeof(time_struct_t));
+
+	/* Copy date section */
+	memcpy(&current_local_time.exact_time_256.day_date_time.date_time,
+	       p_date, sizeof(uint16_t) + sizeof(uint8_t) + sizeof(uint8_t));
 
 	return &current_local_time;
 }
@@ -114,18 +118,19 @@ struct current_time *bt_cts_get_current_time(void)
 static void apply_current_time(void)
 {
 	time_struct_t new_time;
+	struct date_time new_date;
 
-	new_time.hours =
-		current_local_time.exact_time_256.day_date_time.date_time
-		.hours;
-	new_time.minutes =
-		current_local_time.exact_time_256.day_date_time.date_time
-		.minutes;
-	new_time.seconds =
-		current_local_time.exact_time_256.day_date_time.date_time
-		.seconds;
-
+	/* Write new time */
+	memcpy(&new_time,
+	       &current_local_time.exact_time_256.day_date_time.date_time.hours,
+	       sizeof(new_time));
 	clock_set_time(new_time);
+
+	/* Write new date */
+	memcpy(&new_date,
+	       &current_local_time.exact_time_256.day_date_time.date_time,
+	       sizeof(uint16_t) + sizeof(uint8_t) + sizeof(uint8_t));
+	cal_set_date(&new_date);
 }
 
 SYS_INIT(cts_init, APPLICATION, CONFIG_APPLICATION_INIT_PRIORITY);
