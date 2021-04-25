@@ -181,9 +181,9 @@ void screen_clock(void)
 				/* If already woken up, display current date */
 				sprintf(date_buf, "  %d %s %d  ",
 					cal_get_day(),
-					cal_month_string[cal_get_month()],
+					cal_month_string[cal_get_month() - 1],
 					cal_get_year());
-				display_string(date_buf, 0, SCROLL_SPEED);
+				display_string(date_buf, 0, 80);
 				/* Go to sleep right away */
 				i = SLEEP_TIMEOUT;
 				if(state.but_ur) {
@@ -195,8 +195,7 @@ void screen_clock(void)
 					}
 				}
 				display_clear();
-				i = 0;
-				board_suspend();
+				continue;
 			}
 		}
 

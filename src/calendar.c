@@ -95,12 +95,12 @@ void cal_increment_day(void)
 
 uint8_t cal_get_month(void)
 {
-	return curr_date.month;
+	return curr_date.month + 1;
 }
 
 uint8_t cal_get_day(void)
 {
-	return curr_date.day;
+	return curr_date.day + 1;
 }
 
 uint16_t cal_get_year(void)
