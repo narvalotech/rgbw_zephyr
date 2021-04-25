@@ -60,6 +60,8 @@ void main(void)
 	display_string("hello", 0, 50);
 
 	ble_init();
+	/* Advertise by default */
+	ble_adv(1);
 
 	state.pgm_state = PGM_STATE_CLOCK;
 	while(1)
