@@ -53,7 +53,7 @@ static int set_date(struct date_time* p_date)
 
 	display_string("  month", 0, SCROLL_SPEED);
 	k_msleep(DISP_DELAY);
-	date.month = numberSelector(p_date->month, 1, 12, DISPLAY_DIGITAL) - 1;
+	date.month = numberSelector(p_date->month, 1, 12, DISPLAY_DIGITAL);
 	if(state.main)
 	{
 		return -1;
@@ -62,7 +62,7 @@ static int set_date(struct date_time* p_date)
 
 	display_string("  day", 0, SCROLL_SPEED);
 	k_msleep(DISP_DELAY);
-	date.day = numberSelector(p_date->day, 1, 31, DISPLAY_DIGITAL) - 1;
+	date.day = numberSelector(p_date->day, 1, 31, DISPLAY_DIGITAL);
 	if(state.main)
 	{
 		return -1;

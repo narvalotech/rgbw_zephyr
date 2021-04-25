@@ -37,18 +37,37 @@ static void check_leap_year(void)
 	}
 }
 
-static void constrain_day(void)
+static void constrain_date(void)
 {
-	uint8_t days_in_curr_month = days_in_month[curr_date.month];
+	uint8_t days_in_curr_month = days_in_month[curr_date.month - 1];
 
 	/* Extra day in february when in a leap year */
 	if(leap_year && curr_date.month == 1) {
 		days_in_curr_month += 1;
 	}
 
-	if(curr_date.day >= days_in_curr_month)
+	if(curr_date.day < 1) {
+		curr_date.day = 1;
+	} else if(curr_date.day > days_in_curr_month)
 	{
 		curr_date.day = days_in_curr_month;
+	}
+
+	if(curr_date.month < 1)
+	{
+		curr_date.month = 1;
+	} else if(curr_date.month > 12)
+	{
+		curr_date.month = 12;
+	}
+
+	if(curr_date.year < 2000)
+	{
+		curr_date.year = 2000;
+	} else if(curr_date.year > 3000)
+	{
+		/* If this still works in a 1000 yeers I'll be lucky */
+		curr_date.year = 3000;
 	}
 }
 
@@ -56,7 +75,7 @@ void cal_set_date(struct date_time* p_date)
 {
 	memcpy(&curr_date, p_date, sizeof(curr_date));
 	check_leap_year();
-	constrain_day();
+	constrain_date();
 }
 
 void cal_get_date(struct date_time* p_date)
@@ -71,7 +90,7 @@ struct date_time* cal_get_date_ptr(void)
 
 void cal_increment_day(void)
 {
-	uint8_t days_in_curr_month = days_in_month[curr_date.month];
+	uint8_t days_in_curr_month = days_in_month[curr_date.month - 1];
 
 	/* Extra day in february when in a leap year */
 	if(leap_year && curr_date.month == 1) {
@@ -82,11 +101,11 @@ void cal_increment_day(void)
 	{
 		curr_date.day += 1;
 	} else {
-		curr_date.day = 0;
-		if(curr_date.month < 11) {
+		curr_date.day = 1;
+		if(curr_date.month < 12) {
 			curr_date.month += 1;
 		} else {
-			curr_date.month = 0;
+			curr_date.month = 1;
 			curr_date.year += 1;
 			check_leap_year();
 		}
@@ -95,12 +114,12 @@ void cal_increment_day(void)
 
 uint8_t cal_get_month(void)
 {
-	return curr_date.month + 1;
+	return curr_date.month;
 }
 
 uint8_t cal_get_day(void)
 {
-	return curr_date.day + 1;
+	return curr_date.day;
 }
 
 uint16_t cal_get_year(void)
