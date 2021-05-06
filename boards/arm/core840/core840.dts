@@ -187,7 +187,7 @@
 	clock-frequency = <I2C_BITRATE_FAST>;
 
 	accel: lis2dh@19 {
-		/* Is actually a lis3dh, but compatible with lis3dh cmd set */
+		/* Is actually a lis3dh, but compatible with lis2dh cmd set */
 		compatible = "st,lis2dh";
 		label = "LIS3DH-ACCEL";
 		status = "okay";
