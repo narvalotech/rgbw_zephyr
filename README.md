@@ -26,9 +26,10 @@ Features
 --------
 
 - Time display in BCD and digital formats
+- Date display
+- Shake wrist to wake display up
 - Set the time using the accelerometer (fun!)
 - Basic stopwatch
 - Basic countdown timer
-- Basic accelerometer test
 - Bluetooth Current Time Service implementation
 - NCS FOTA (bluetooth fw upgrade)
