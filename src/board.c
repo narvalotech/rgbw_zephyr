@@ -27,8 +27,11 @@ void board_suspend(void)
 	display_clear();
 	board_enable_5v(0);
 
-	/* Kill sensor power */
-	accel_high_latency(1);
+	/* Reduce sensor power */
+	/* Cannot do this if motion wakeup is enabled
+	 * since HP filter is calibrated for 50Hz
+	 * TODO: make this configurable */
+	/* accel_high_latency(1); */
 
 	/* Put clock counter into high-latency mode */
 	clock_set_high_latency(1);
@@ -37,7 +40,7 @@ void board_suspend(void)
 	k_sleep(K_FOREVER);
 
 	/* Restore sensor power */
-	accel_high_latency(0);
+	/* accel_high_latency(0); */
 
 	/* Put clock counter into low-latency mode */
 	clock_set_high_latency(0);
