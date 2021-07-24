@@ -257,7 +257,6 @@ void screen_stopwatch(void)
 	display_clear();
 	display_mono_set_color(0, 255, 0);
 	display_string("stw", 0, SCROLL_SPEED);
-	k_msleep(DISP_DELAY);
 
 	while(!state.exit_signal && !state.main)
 	{
@@ -328,7 +327,6 @@ void screen_countdown(void)
 	display_clear();
 	display_mono_set_color(128, 29, 214); /* Purple-ish */
 	display_string("timer", 0, SCROLL_SPEED);
-	k_msleep(DISP_DELAY);
 
 	while(!state.exit_signal && !state.main)
 	{
@@ -481,7 +479,6 @@ void screen_ble(void)
 	display_clear();
 	display_mono_set_color(0, 0, 255); /* Blue */
 	display_string("bluetooth", 0, SCROLL_SPEED);
-	k_msleep(DISP_DELAY);
 
 	while(!state.exit_signal && !state.main)
 	{
