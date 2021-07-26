@@ -184,8 +184,7 @@ void screen_clock(void)
 					cal_month_string[cal_get_month() - 1],
 					cal_get_year());
 				display_string(date_buf, 0, 80);
-				/* Go to sleep right away */
-				i = SLEEP_TIMEOUT;
+
 				if(state.but_ur == 2) {
 					/* If user long-pressed button during
 					 * date display, then set the date. */
@@ -194,9 +193,11 @@ void screen_clock(void)
 						cal_set_date(&date);
 					}
 				}
-				display_clear();
 				/* Clear button state just in case */
 				state.but_ur = 0;
+
+				/* Go to sleep right away */
+				i = SLEEP_TIMEOUT;
 				continue;
 			}
 		}
