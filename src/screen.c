@@ -28,7 +28,7 @@ extern struct g_state state;
 #define DISP_DELAY 200
 #define SLEEP_TIMEOUT 10
 
-static int set_date(struct date_time* p_date)
+static int input_date(struct date_time* p_date)
 {
 	struct date_time date;
 	memset(&date, 0, sizeof(date));
@@ -78,7 +78,7 @@ static int set_date(struct date_time* p_date)
 	return 0;
 }
 
-static int set_time(time_struct_t* p_time)
+static int input_time(time_struct_t* p_time)
 {
 	time_struct_t time = {0, 0, 0};
 
@@ -135,7 +135,7 @@ void screen_time_set(void)
 	memcpy(&newTime, clock_get_time_p(), sizeof(newTime));
 
 	display_mono_set_color(255, 0, 0);
-	if(!set_time(&newTime))
+	if(!input_time(&newTime))
 	{
 		clock_set_time(newTime);
 		display_string("  success  ",0,SCROLL_SPEED);
@@ -201,7 +201,7 @@ void screen_clock(void)
 					/* If user long-pressed button during
 					 * date display, then set the date. */
 					struct date_time date;
-					if(set_date(&date) == 0) {
+					if(input_date(&date) == 0) {
 						cal_set_date(&date);
 					}
 				}
@@ -371,7 +371,7 @@ void screen_countdown(void)
 			if(cd_timer_state_get() == CD_TIMER_STOPPED)
 			{
 				/* Select countdown time */
-				if(!set_time(&init_time)) {
+				if(!input_time(&init_time)) {
 					/* Start timer */
 					cd_timer_start(&init_time);
 					state_clear();
