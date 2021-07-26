@@ -186,15 +186,17 @@ void screen_clock(void)
 				display_string(date_buf, 0, 80);
 				/* Go to sleep right away */
 				i = SLEEP_TIMEOUT;
-				if(state.but_ur) {
-					/* If user pressed button during date display,
-					 * then set the date. */
+				if(state.but_ur == 2) {
+					/* If user long-pressed button during
+					 * date display, then set the date. */
 					struct date_time date;
 					if(set_date(&date) == 0) {
 						cal_set_date(&date);
 					}
 				}
 				display_clear();
+				/* Clear button state just in case */
+				state.but_ur = 0;
 				continue;
 			}
 		}
