@@ -179,8 +179,20 @@ void screen_clock(void)
 				clock_thread_sync();
 			} else {
 				/* If already woken up, display current date */
-				sprintf(date_buf, "  %d %s %d  ",
-					cal_get_day(),
+				display_fade_next(DISP_FX_DIR_LEFT,
+						  500,
+						  DISP_FX_SLIDE);
+				display_clear();
+
+				/* Start with the day */
+				display_fade_next(DISP_FX_DIR_IN,
+						  200,
+						  DISP_FX_FADE);
+				display_number(cal_get_day(), 0);
+				k_msleep(500);
+
+				/* And scroll the rest of the date */
+				sprintf(date_buf, "  %s %d  ",
 					cal_month_string[cal_get_month() - 1],
 					cal_get_year());
 				display_string(date_buf, 0, 80);
