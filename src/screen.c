@@ -34,10 +34,10 @@ static int set_date(struct date_time* p_date)
 	memset(&date, 0, sizeof(date));
 
 	display_clear();
+	state_clear();
 	display_string("set date",0,SCROLL_SPEED);
 	k_msleep(DISP_DELAY);
-
-	if(state.exit_signal || state.main)
+	if(state.abort || state.main)
 	{
 		return -1;
 	}
@@ -45,7 +45,7 @@ static int set_date(struct date_time* p_date)
 	display_string("  year", 0, SCROLL_SPEED);
 	k_msleep(DISP_DELAY);
 	date.year = 2000 + numberSelector(p_date->year, 0, 99, DISPLAY_DIGITAL);
-	if(state.main)
+	if(state.abort || state.main)
 	{
 		return -1;
 	}
@@ -54,7 +54,7 @@ static int set_date(struct date_time* p_date)
 	display_string("  month", 0, SCROLL_SPEED);
 	k_msleep(DISP_DELAY);
 	date.month = numberSelector(p_date->month, 1, 12, DISPLAY_DIGITAL);
-	if(state.main)
+	if(state.abort || state.main)
 	{
 		return -1;
 	}
@@ -63,7 +63,7 @@ static int set_date(struct date_time* p_date)
 	display_string("  day", 0, SCROLL_SPEED);
 	k_msleep(DISP_DELAY);
 	date.day = numberSelector(p_date->day, 1, 31, DISPLAY_DIGITAL);
-	if(state.main)
+	if(state.abort || state.main)
 	{
 		return -1;
 	}
@@ -83,10 +83,10 @@ static int set_time(time_struct_t* p_time)
 	time_struct_t time = {0, 0, 0};
 
 	display_clear();
+	state_clear();
 	display_string("set time",0,SCROLL_SPEED);
 	k_msleep(DISP_DELAY);
-
-	if(state.exit_signal || state.main)
+	if(state.abort || state.main)
 	{
 		return -1;
 	}
@@ -94,7 +94,7 @@ static int set_time(time_struct_t* p_time)
 	display_string("  hours",0,SCROLL_SPEED);
 	k_msleep(DISP_DELAY);
 	time.hours = (uint8_t)numberSelector(p_time->hours, 0, 23, DISPLAY_DIGITAL);
-	if(state.main)
+	if(state.abort || state.main)
 	{
 		return -1;
 	}
@@ -103,7 +103,7 @@ static int set_time(time_struct_t* p_time)
 	display_string("  minutes",0,SCROLL_SPEED);
 	k_msleep(DISP_DELAY);
 	time.minutes = (uint8_t)numberSelector(p_time->minutes, 0, 59, DISPLAY_DIGITAL);
-	if(state.main)
+	if(state.abort || state.main)
 	{
 		return -1;
 	}
@@ -112,7 +112,7 @@ static int set_time(time_struct_t* p_time)
 	display_string("  seconds",0,SCROLL_SPEED);
 	k_msleep(DISP_DELAY);
 	time.seconds = (uint8_t)numberSelector(p_time->seconds, 0, 59, DISPLAY_DIGITAL);
-	if(state.main)
+	if(state.abort || state.main)
 	{
 		return -1;
 	}
@@ -158,7 +158,7 @@ void screen_clock(void)
 	uint32_t arm_reset = 0;
 
 	int i = 0;
-	while(!state.exit_signal && !state.main)
+	while(!state.abort && !state.main)
 	{
 		i++;
 		if(i >= SLEEP_TIMEOUT)
@@ -260,7 +260,7 @@ void screen_stopwatch(void)
 	display_mono_set_color(0, 255, 0);
 	display_string("stw", 0, SCROLL_SPEED);
 
-	while(!state.exit_signal && !state.main)
+	while(!state.abort && !state.main)
 	{
 		i++;
 		if(i >= SLEEP_TIMEOUT * 100)
@@ -330,7 +330,7 @@ void screen_countdown(void)
 	display_mono_set_color(128, 29, 214); /* Purple-ish */
 	display_string("timer", 0, SCROLL_SPEED);
 
-	while(!state.exit_signal && !state.main)
+	while(!state.abort && !state.main)
 	{
 		i++;
 		if(i >= SLEEP_TIMEOUT)
@@ -391,7 +391,7 @@ void screen_test_tilt(void)
 
 	display_mono_set_color(86, 213, 245);
 
-	while(!state.exit_signal && !state.main)
+	while(!state.abort && !state.main)
 	{
 		accel_get_mg(accel);
 
@@ -450,7 +450,7 @@ void screen_battery(void)
 	k_msleep(100);
 
 	/* Get batt level */
-	while(!batt_mv && !state.exit_signal && !state.main)
+	while(!batt_mv && !state.abort && !state.main)
 	{
 		batt_mv = battery_sample();
 	}
@@ -469,7 +469,7 @@ void screen_battery(void)
 	display_bcd(0, batt_percent, 0, 0);
 
 	/* Wait 5s and exit to next screen */
-	if(!state.exit_signal && !state.main)
+	if(!state.abort && !state.main)
 		k_sleep(K_SECONDS(5));
 
 	state_clear();
@@ -482,7 +482,7 @@ void screen_ble(void)
 	display_mono_set_color(0, 0, 255); /* Blue */
 	display_string("bluetooth", 0, SCROLL_SPEED);
 
-	while(!state.exit_signal && !state.main)
+	while(!state.abort && !state.main)
 	{
 		if(state.but_ur == 1)
 		{

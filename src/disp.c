@@ -210,24 +210,16 @@ void display_number(uint16_t num, uint16_t time_ms) {
 
 int disp_delay_ms(uint32_t ms)
 {
-	for(uint32_t delay = 0; (delay < ms) && !state.abort_disp; delay += 10)
+	for(uint32_t delay = 0; (delay < ms) && !state.abort; delay += 10)
 		k_msleep(10);
 
-	if(state.abort_disp)
-	{
-		state.abort_disp = 0;
-		return 1;
-	}
-
-	return 0;
+	return state.abort;
 }
 
 void display_string(char* string, uint16_t repeat, uint16_t scrollspeed) {
 	uint16_t i = 0;
 	uint16_t j = 0;
 	char currentChar = 0;
-
-	state.abort_disp = 0;
 
 	repeat++;
 	while(repeat != 0) {

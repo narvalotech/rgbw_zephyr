@@ -47,9 +47,8 @@ uint32_t numberSelector(uint16_t defaultNum,
 	int32_t acc_val[3] = {0};
 
 	state.select = 0;
-	state.exit_signal = 0;
 
-	while(!state.exit_signal)
+	while(!state.abort)
 	{
 		// Display current number
 		switch(displayType)
@@ -98,8 +97,6 @@ uint32_t numberSelector(uint16_t defaultNum,
 				currentNumber = endNum;
 		}
 	}
-
-	state.exit_signal = 0;
 
 	return currentNumber;
 }

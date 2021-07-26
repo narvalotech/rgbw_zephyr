@@ -21,8 +21,7 @@ struct g_state {
 	k_tid_t main_tid;	/* Main thread ID */
 	pgm_state_t pgm_state;	/* Current program state */
 	bool main;		/* Go back to main screen */
-	bool exit_signal;	/* Exit current activity */
-	bool abort_disp;	/* Abort scrolling string display */
+	bool abort;	        /* Abort current procedure */
 	bool hibernate;		/* Hibernate ASAP */
 	bool select;		/* User has selected current item */
 	uint8_t but_ll;		/* Lower left button pressed */
