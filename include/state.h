@@ -13,8 +13,7 @@ typedef enum {
 	PGM_STATE_COUNTDOWN,
 	PGM_STATE_CHARGE,
 	PGM_STATE_BATT,
-	PGM_STATE_BLE,
-	PGM_STATE_HIBERNATE
+	PGM_STATE_BLE
 } pgm_state_t;
 
 struct g_state {
@@ -22,7 +21,6 @@ struct g_state {
 	pgm_state_t pgm_state;	/* Current program state */
 	bool main;		/* Go back to main screen */
 	bool abort;	        /* Abort current procedure */
-	bool hibernate;		/* Hibernate ASAP */
 	bool select;		/* User has selected current item */
 	uint8_t but_ll;		/* Lower left button pressed */
 	uint8_t but_lr;		/* Lower right button pressed */

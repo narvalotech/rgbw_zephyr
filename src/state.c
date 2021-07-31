@@ -7,7 +7,7 @@ extern struct g_state state;
 
 void state_clear(void)
 {
-	/* Clear all state except main/hibernate/pgm */
+	/* Clear all state except main/pgm */
 	state.abort = 0;
 	state.select = 0;
 	state.but_ll = 0;
@@ -21,10 +21,6 @@ void main_state_set(pgm_state_t curr_state, pgm_state_t new_state)
 	if(state.main) {
 		state.pgm_state = PGM_STATE_CLOCK;
 		state.main = 0;
-	}
-	else if(state.hibernate) {
-		state.pgm_state = PGM_STATE_HIBERNATE;
-		state.hibernate = 0;
 	}
 	/* If next state has been set from somewhere else,
 	 * don't mess with it. */
@@ -68,9 +64,6 @@ void main_state_loop(void)
 			break;
 		case PGM_STATE_CHARGE:
 			/* TODO: add charging screen */
-			break;
-		case PGM_STATE_HIBERNATE:
-			/* TODO: add hibernating routine */
 			break;
 		default:
 			break;
