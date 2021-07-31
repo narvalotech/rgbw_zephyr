@@ -395,6 +395,44 @@ void screen_countdown(void)
 	display_clear();
 }
 
+void screen_alarm_view(void)
+{
+	/* Configure and view alarm settings */
+	uint32_t i = 0;
+
+	display_clear();
+	display_mono_set_color(251, 255, 20); /* Yellow */
+	display_string("alarm", 0, SCROLL_SPEED);
+
+	while(!state.abort && !state.main) {
+		i++;
+		if(i >= SLEEP_TIMEOUT) {
+			i = 0;
+			board_suspend();
+		}
+
+		if (state.but_ur == 1) {
+			state.but_ur = 0;
+		}
+
+		if (state.but_lr) {
+			state.but_lr = 0;
+
+		}
+
+		k_sleep(K_FOREVER);
+	}
+
+	state_clear();
+	display_clear();
+}
+
+void screen_alarm_ring(void)
+{
+	/* Shown when alarm is due
+	 * handle snooze and stop */
+}
+
 void screen_test_tilt(void)
 {
 	#define TEST_TILT_THRESHOLD 300
