@@ -18,6 +18,8 @@
 #define BATT_PIN     DT_GPIO_PIN(BATT_NODE, gpios)
 #define MOTOR_NODE   DT_NODELABEL(hapt_gpio)
 #define MOTOR_PIN    DT_GPIO_PIN(MOTOR_NODE, gpios)
+#define DEBOUNCE_MS  200
+#define BUT_TIMER_MS 1000
 
 extern struct g_state state;
 
@@ -66,12 +68,19 @@ static void button_callback(const struct device *dev, struct gpio_callback *cb,
 	gpio_port_get(dev, &port_val);
 
 	if(port_val == 0) {
+		if(BUT_TIMER_MS - k_timer_remaining_get(&button_timer)
+		   < DEBOUNCE_MS)
+		{
+			/* Don't respond to overly-fast button pushes */
+			k_timer_stop(&button_timer);
+			return;
+		}
 		/* Abort running timer */
 		k_timer_stop(&button_timer);
 	}
 	else {
 		/* One-shot timer */
-		k_timer_start(&button_timer, K_SECONDS(1), K_NO_WAIT);
+		k_timer_start(&button_timer, K_MSEC(BUT_TIMER_MS), K_NO_WAIT);
 		return;
 	}
 
