@@ -21,6 +21,7 @@
 #include "countdown.h"
 #include "cts.h"
 #include "calendar.h"
+#include "alarm.h"
 
 extern struct g_state state;
 
@@ -429,8 +430,37 @@ void screen_alarm_view(void)
 
 void screen_alarm_ring(void)
 {
-	/* Shown when alarm is due
-	 * handle snooze and stop */
+	/* Shown when alarm is due, handles snooze and stop.
+	 * This screen should not be selectable by the user, should only be
+	 * shown by the alarm module. */
+	bool exit = false;
+	time_struct_t* p_time = clock_get_time_p();
+
+	display_clear();
+	display_mono_set_color(185, 78, 2); /* Brown-ish */
+
+	while(!exit)
+	{
+		if (state.but_ur == 1) {
+			state.but_ur = 0;
+			alarm_snooze(10);
+			exit = true;
+			display_string("snooze", 0, SCROLL_SPEED);
+		} else if(state.but_ur == 2) {
+			state.but_ur = 0;
+			alarm_stop();
+			exit = true;
+			display_string("stop", 0, SCROLL_SPEED);
+		}
+
+		/* Show the time while the user wakes up */
+		display_bcd(p_time->hours,
+			    p_time->minutes,
+			    p_time->seconds, 0);
+		clock_thread_sync();
+	}
+	state_clear();
+	display_clear();
 }
 
 void screen_test_tilt(void)
