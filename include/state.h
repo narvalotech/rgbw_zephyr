@@ -20,6 +20,7 @@ struct g_state {
 	k_tid_t main_tid;	/* Main thread ID */
 	pgm_state_t pgm_state;	/* Current program state */
 	bool main;		/* Go back to main screen */
+	bool next;		/* Go to next screen/activity */
 	bool abort;	        /* Abort current procedure */
 	bool select;		/* User has selected current item */
 	uint8_t but_ll;		/* Lower left button pressed */

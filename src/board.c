@@ -99,6 +99,7 @@ static void button_callback(const struct device *dev, struct gpio_callback *cb,
 		else {
 			state.but_ll = 1;
 			state.abort = 1;
+			state.next = 1;
 			clock_thread_unblock();
 		}
 	}

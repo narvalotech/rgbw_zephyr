@@ -158,7 +158,7 @@ void screen_clock(void)
 	uint32_t arm_reset = 0;
 
 	int i = 0;
-	while(!state.abort && !state.main)
+	while(!state.next && !state.main)
 	{
 		i++;
 		if(i >= SLEEP_TIMEOUT)
@@ -273,7 +273,7 @@ void screen_stopwatch(void)
 	display_mono_set_color(0, 255, 0);
 	display_string("stw", 0, SCROLL_SPEED);
 
-	while(!state.abort && !state.main)
+	while(!state.next && !state.main)
 	{
 		i++;
 		if(i >= SLEEP_TIMEOUT * 100)
@@ -343,7 +343,7 @@ void screen_countdown(void)
 	display_mono_set_color(128, 29, 214); /* Purple-ish */
 	display_string("timer", 0, SCROLL_SPEED);
 
-	while(!state.abort && !state.main)
+	while(!state.next && !state.main)
 	{
 		i++;
 		if(i >= SLEEP_TIMEOUT)
@@ -404,7 +404,7 @@ void screen_alarm_view(void)
 	display_mono_set_color(251, 255, 20); /* Yellow */
 	display_string("alarm", 0, SCROLL_SPEED);
 
-	while(!state.abort && !state.main) {
+	while(!state.next && !state.main) {
 		i++;
 		if(i >= SLEEP_TIMEOUT) {
 			i = 0;
@@ -442,7 +442,7 @@ void screen_test_tilt(void)
 
 	display_mono_set_color(86, 213, 245);
 
-	while(!state.abort && !state.main)
+	while(!state.next && !state.main)
 	{
 		accel_get_mg(accel);
 
@@ -501,7 +501,7 @@ void screen_battery(void)
 	k_msleep(100);
 
 	/* Get batt level */
-	while(!batt_mv && !state.abort && !state.main)
+	while(!batt_mv && !state.next && !state.main)
 	{
 		batt_mv = battery_sample();
 	}
@@ -520,7 +520,7 @@ void screen_battery(void)
 	display_bcd(0, batt_percent, 0, 0);
 
 	/* Wait 5s and exit to next screen */
-	if(!state.abort && !state.main)
+	if(!state.next && !state.main)
 		k_sleep(K_SECONDS(5));
 
 	state_clear();
@@ -533,7 +533,7 @@ void screen_ble(void)
 	display_mono_set_color(0, 0, 255); /* Blue */
 	display_string("bluetooth", 0, SCROLL_SPEED);
 
-	while(!state.abort && !state.main)
+	while(!state.next && !state.main)
 	{
 		if(state.but_ur == 1)
 		{
