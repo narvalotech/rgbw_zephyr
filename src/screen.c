@@ -10,7 +10,6 @@
 #include "screen.h"
 #include "clock.h"
 #include "disp.h"
-#include "menu.h"
 #include "state.h"
 #include "stopwatch.h"
 #include "accel.h"
@@ -28,6 +27,87 @@ extern struct g_state state;
 #define SCROLL_SPEED 50
 #define DISP_DELAY 200
 #define SLEEP_TIMEOUT 10
+
+/* numberSelector defines */
+#define ITEM_SCROLL_THR 2000
+#define TILT_ANGLE_COMPENSATION (+3000)
+#define ACCEL_INVERTED (-1)
+
+static int abs(int val)
+{
+	if(val < 0)
+	{
+		val = 0 - val;
+	}
+
+	return val;
+}
+
+/* TODO: clean this up, remove int16's etc */
+uint32_t numberSelector(uint16_t defaultNum,
+			uint16_t startNum,
+			uint16_t endNum,
+			uint8_t displayType)
+{
+	uint32_t currentNumber = defaultNum;
+	int32_t accel;
+	uint32_t dispTime = 1000;
+	int32_t acc_val[3] = {0};
+
+	state.select = 0;
+
+	while(!state.abort)
+	{
+		// Display current number
+		switch(displayType)
+		{
+			case DISPLAY_DIGITAL:
+			display_number(currentNumber, dispTime);
+			break;
+			case DISPLAY_BCD:
+			display_bcd(0, currentNumber, 0, dispTime);
+			break;
+			default:
+			display_bcd(0, currentNumber, 0, dispTime);
+			break;
+		}
+
+		// Get acceleration data
+		accel_get_mg(acc_val);
+		accel = acc_val[1] * ACCEL_INVERTED;
+		accel += TILT_ANGLE_COMPENSATION;
+
+		// Display time is proportional to tilt angle
+		dispTime = abs(accel) / 7;
+		if(dispTime > 900)
+			dispTime = 900;	/* Take care of overflow */
+		dispTime = 1000 - dispTime;
+
+		if(state.select)
+		{
+			state.select = 0;
+			return currentNumber;
+		}
+
+		// Increment/decrement number
+		if(accel > ITEM_SCROLL_THR)
+		{
+			if(currentNumber < endNum)
+				currentNumber++;
+			else
+				currentNumber = startNum;
+		}
+		else if(accel < -ITEM_SCROLL_THR)
+		{
+			if(currentNumber > startNum)
+				currentNumber--;
+			else
+				currentNumber = endNum;
+		}
+	}
+
+	return currentNumber;
+}
 
 static int input_date(struct date_time* p_date)
 {

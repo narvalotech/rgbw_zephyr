@@ -31,7 +31,6 @@ set(APP_SRC
   src/disp.c
   src/clock.c
   src/accel.c
-  src/menu.c
   src/screen.c
   src/pinmux.c
   src/board.c
@@ -46,7 +45,6 @@ set(APP_SRC
   )
 
 set(APP_INCLUDE
-  include
   include
   )
 
