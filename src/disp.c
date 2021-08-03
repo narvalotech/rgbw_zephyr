@@ -213,6 +213,13 @@ void display_string(char* string, uint16_t repeat, uint16_t scrollspeed) {
 	uint16_t j = 0;
 	char currentChar = 0;
 
+	/* TODO: figure out a cleaner way to do this */
+	/* This resets the abort state so the user has to press
+	 * the abort button once again during the display.
+	 * Without this, the caller has to reset the state before
+	 * calling this fn. */
+	state.abort = 0;
+
 	repeat++;
 	while(repeat != 0) {
 		repeat--;
