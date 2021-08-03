@@ -260,15 +260,9 @@ void screen_clock(void)
 				clock_thread_sync();
 			} else {
 				/* If already woken up, display current date */
-				display_fade_next(DISP_FX_DIR_LEFT,
-						  500,
-						  DISP_FX_SLIDE);
 				display_clear();
 
 				/* Start with the day */
-				display_fade_next(DISP_FX_DIR_IN,
-						  200,
-						  DISP_FX_FADE);
 				display_number(cal_get_day(), 0);
 				k_msleep(500);
 
