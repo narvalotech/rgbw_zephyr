@@ -54,7 +54,7 @@ uint32_t numberSelector(uint16_t defaultNum,
 	uint32_t dispTime = 1000;
 	int32_t acc_val[3] = {0};
 
-	state.select = 0;
+	state.but_ur = 0;
 
 	while(!state.abort)
 	{
@@ -83,9 +83,8 @@ uint32_t numberSelector(uint16_t defaultNum,
 			dispTime = 900;	/* Take care of overflow */
 		dispTime = 1000 - dispTime;
 
-		if(state.select)
+		if(state.but_ur)
 		{
-			state.select = 0;
 			return currentNumber;
 		}
 

@@ -10,7 +10,6 @@ void state_clear(void)
 	/* Clear all state except main/pgm */
 	state.abort = 0;
 	state.next = 0;
-	state.select = 0;
 	state.but_ll = 0;
 	state.but_lr = 0;
 	state.but_ur = 0;
