@@ -208,14 +208,6 @@ void display_number(uint16_t num, uint16_t time_ms) {
 	display_clear();
 }
 
-int disp_delay_ms(uint32_t ms)
-{
-	for(uint32_t delay = 0; (delay < ms) && !state.abort; delay += 10)
-		k_msleep(10);
-
-	return state.abort;
-}
-
 void display_string(char* string, uint16_t repeat, uint16_t scrollspeed) {
 	uint16_t i = 0;
 	uint16_t j = 0;
@@ -259,7 +251,8 @@ void display_string(char* string, uint16_t repeat, uint16_t scrollspeed) {
 					display[2] += (letters[2][currentChar - 'a']>>i) & 1;
 				}
 				display_refresh();
-				if(disp_delay_ms(scrollspeed)) return;
+				k_msleep(scrollspeed);
+				if(state.abort) return;
 			}
 		}
 
@@ -282,7 +275,8 @@ void display_string(char* string, uint16_t repeat, uint16_t scrollspeed) {
 					display[2] += (letters[2][currentChar - 'a']>>i) & 1;
 				}
 				display_refresh();
-				if(disp_delay_ms(scrollspeed)) return;
+				k_msleep(scrollspeed);
+				if(state.abort) return;
 			}
 		}
 	}
