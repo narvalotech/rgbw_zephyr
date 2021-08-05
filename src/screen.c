@@ -207,6 +207,49 @@ static int input_time(time_struct_t* p_time)
 	return 0;
 }
 
+static int input_days(uint8_t* p_days)
+{
+	uint8_t days = *p_days;
+
+	display_clear();
+	state_clear();
+	display_string("set days", 0, SCROLL_SPEED);
+	k_msleep(DISP_DELAY);
+	if(state.abort || state.main)
+	{
+		return -1;
+	}
+
+	/* Loop through each day in the week, enabling or disabling it. */
+	/* Uses day_of_week_t values. */
+	/* Week is read from right to left. */
+	for(uint8_t day = MONDAY; day <= SUNDAY; day++)
+	{
+		state.but_ur = 0;
+		state.but_lr = 0;
+		/* UR moves to next day, LR enables/disables current day */
+		while(!state.but_ur)
+		{
+			display_bytes(1 << day,
+				      days | ((1 << day) & (state.but_lr & 0x01)),
+				      0,
+				      0);
+			k_sleep(K_FOREVER); /* Wait for next button press */
+		}
+		days &= ~(1 << day);
+		days |= (state.but_lr & 0x01) << day;
+	}
+	if(state.abort || state.main)
+	{
+		return -1;
+	}
+
+	/* Save value if user did not abort */
+	*p_days = days;
+
+	return 0;
+}
+
 void screen_time_set(void)
 {
 	time_struct_t newTime;
@@ -471,30 +514,52 @@ void screen_countdown(void)
 
 void screen_alarm_view(void)
 {
-	/* Configure and view alarm settings */
-	uint32_t i = 0;
+	/* View and configure alarm */
+	alarm_struct_t alarm_time;
 
 	display_clear();
 	display_mono_set_color(251, 255, 20); /* Yellow */
 	display_string("alarm", 0, SCROLL_SPEED);
 
 	while(!state.next && !state.main) {
-		i++;
-		if(i >= SLEEP_TIMEOUT) {
-			i = 0;
-			board_suspend();
-		}
-
-		if (state.but_ur == 1) {
+		/* Enable/disable alarm */
+		if (state.but_ur == 2) {
 			state.but_ur = 0;
+			/* Toggle state */
+			alarm_enable(!alarm_is_enabled());
+			if(alarm_is_enabled())
+				display_string("enabled", 0, SCROLL_SPEED);
+			else
+				display_string("disabled", 0, SCROLL_SPEED);
 		}
 
-		if (state.but_lr) {
+		/* Set alarm */
+		if (state.but_lr == 2) {
 			state.but_lr = 0;
-
+			/* Start from the previous settings */
+			alarm_get(&alarm_time);
+			if(input_time(&alarm_time.time))
+				break;
+			if(input_days(&alarm_time.days))
+				break;
+			/* Apply the new settings */
+			alarm_set(&alarm_time);
 		}
 
-		k_sleep(K_FOREVER);
+		alarm_get(&alarm_time);
+		/* Display:
+		 * - Top: configured days right to left, MSb is enabled/disabled
+		 * - Mid: Hours BCD
+		 * - Bot: Minutes BCD */
+		display_bytes(alarm_time.days | ((alarm_is_enabled() & 1) << 7),
+			      ((alarm_time.time.hours / 10) << 4) +
+				      (alarm_time.time.hours % 10),
+			      ((alarm_time.time.minutes / 10) << 4) +
+				      (alarm_time.time.minutes % 10), 0);
+
+		/* Show settings for 10s, then sleep */
+		k_msleep(10000);
+		board_suspend();
 	}
 
 	state_clear();

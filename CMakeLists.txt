@@ -42,6 +42,7 @@ set(APP_SRC
   src/ble.c
   src/cts.c
   src/calendar.c
+  src/alarm.c
   )
 
 set(APP_INCLUDE
