@@ -117,7 +117,7 @@ static int input_date(struct date_time* p_date)
 	state_clear();
 	display_string("set date",0,SCROLL_SPEED);
 	k_msleep(DISP_DELAY);
-	if(state.abort || state.main)
+	if(state.next || state.main)
 	{
 		return -1;
 	}
@@ -125,7 +125,7 @@ static int input_date(struct date_time* p_date)
 	display_string("  year", 0, SCROLL_SPEED);
 	k_msleep(DISP_DELAY);
 	date.year = 2000 + numberSelector(p_date->year, 0, 99, DISPLAY_DIGITAL);
-	if(state.abort || state.main)
+	if(state.next || state.main)
 	{
 		return -1;
 	}
@@ -134,7 +134,7 @@ static int input_date(struct date_time* p_date)
 	display_string("  month", 0, SCROLL_SPEED);
 	k_msleep(DISP_DELAY);
 	date.month = numberSelector(p_date->month, 1, 12, DISPLAY_DIGITAL);
-	if(state.abort || state.main)
+	if(state.next || state.main)
 	{
 		return -1;
 	}
@@ -143,7 +143,7 @@ static int input_date(struct date_time* p_date)
 	display_string("  day", 0, SCROLL_SPEED);
 	k_msleep(DISP_DELAY);
 	date.day = numberSelector(p_date->day, 1, 31, DISPLAY_DIGITAL);
-	if(state.abort || state.main)
+	if(state.next || state.main)
 	{
 		return -1;
 	}
@@ -166,7 +166,7 @@ static int input_time(time_struct_t* p_time)
 	state_clear();
 	display_string("set time",0,SCROLL_SPEED);
 	k_msleep(DISP_DELAY);
-	if(state.abort || state.main)
+	if(state.next || state.main)
 	{
 		return -1;
 	}
@@ -174,7 +174,7 @@ static int input_time(time_struct_t* p_time)
 	display_string("  hours",0,SCROLL_SPEED);
 	k_msleep(DISP_DELAY);
 	time.hours = (uint8_t)numberSelector(p_time->hours, 0, 23, DISPLAY_DIGITAL);
-	if(state.abort || state.main)
+	if(state.next || state.main)
 	{
 		return -1;
 	}
@@ -183,7 +183,7 @@ static int input_time(time_struct_t* p_time)
 	display_string("  minutes",0,SCROLL_SPEED);
 	k_msleep(DISP_DELAY);
 	time.minutes = (uint8_t)numberSelector(p_time->minutes, 0, 59, DISPLAY_DIGITAL);
-	if(state.abort || state.main)
+	if(state.next || state.main)
 	{
 		return -1;
 	}
@@ -192,7 +192,7 @@ static int input_time(time_struct_t* p_time)
 	display_string("  seconds",0,SCROLL_SPEED);
 	k_msleep(DISP_DELAY);
 	time.seconds = (uint8_t)numberSelector(p_time->seconds, 0, 59, DISPLAY_DIGITAL);
-	if(state.abort || state.main)
+	if(state.next || state.main)
 	{
 		return -1;
 	}
