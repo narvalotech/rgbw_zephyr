@@ -55,6 +55,7 @@ uint32_t numberSelector(uint16_t defaultNum,
 	int32_t acc_val[3] = {0};
 
 	state.but_ur = 0;
+	state.abort = 0;
 
 	while(!state.abort)
 	{
