@@ -229,10 +229,10 @@ static int input_days(uint8_t* p_days)
 		state.but_ur = 0;
 		state.but_lr = 0;
 		/* UR moves to next day, LR enables/disables current day */
-		while(!state.but_ur)
+		while((!state.but_ur) && (state.abort || state.main))
 		{
 			display_bytes(1 << day,
-				      days | ((1 << day) & (state.but_lr & 0x01)),
+				      days | ((state.but_lr & 0x01) << day),
 				      0,
 				      0);
 			k_sleep(K_FOREVER); /* Wait for next button press */
