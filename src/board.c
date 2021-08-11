@@ -18,8 +18,9 @@
 #define BATT_PIN     DT_GPIO_PIN(BATT_NODE, gpios)
 #define MOTOR_NODE   DT_NODELABEL(hapt_gpio)
 #define MOTOR_PIN    DT_GPIO_PIN(MOTOR_NODE, gpios)
-#define DEBOUNCE_MS  100
-#define BUT_TIMER_MS 1000
+#define DEBOUNCE_MS  200
+#define HOLD_MS      1000
+#define BUT_TIMER_MS 10000
 
 extern struct g_state state;
 
@@ -52,44 +53,11 @@ void board_suspend(void)
 	display_clear();
 }
 
-static void button_timer_callback(struct k_timer *timer_id)
+static void process_button_presses(uint32_t pins, bool long_press)
 {
-	state.but_long_press = 1;
-}
-K_TIMER_DEFINE(button_timer, button_timer_callback, NULL);
-
-static void button_callback(const struct device *dev, struct gpio_callback *cb,
-			    uint32_t pins)
-{
-	gpio_port_value_t port_val = 0;
-
-	/* All pushbuttons are on the same port */
-	dev = device_get_binding(DT_GPIO_LABEL(DT_ALIAS(sw0), gpios));
-	gpio_port_get(dev, &port_val);
-
-	if(port_val == 0) {
-		if(BUT_TIMER_MS - k_timer_remaining_get(&button_timer)
-		   < DEBOUNCE_MS)
-		{
-			/* Don't respond to overly-fast button pushes */
-			k_timer_stop(&button_timer);
-			return;
-		}
-		/* Abort running timer */
-		k_timer_stop(&button_timer);
-	}
-	else {
-		/* One-shot timer */
-		k_timer_start(&button_timer, K_MSEC(BUT_TIMER_MS), K_NO_WAIT);
-		return;
-	}
-
-	k_wakeup(state.main_tid); /* Wake from sleep */
-
 	if (pins & (1 << SW_0_PIN))
 	{
-		if(state.but_long_press) {
-			state.but_long_press = 0;
+		if(long_press) {
 			state.but_ll = 2;
 			/* Go to main screen immediately */
 			state.main = 1;
@@ -105,8 +73,7 @@ static void button_callback(const struct device *dev, struct gpio_callback *cb,
 	}
 	if (pins & (1 << SW_1_PIN))
 	{
-		if(state.but_long_press) {
-			state.but_long_press = 0;
+		if(long_press) {
 			state.but_lr = 2;
 		}
 		else {
@@ -115,14 +82,52 @@ static void button_callback(const struct device *dev, struct gpio_callback *cb,
 	}
 	if (pins & (1 << SW_2_PIN))
 	{
-		if(state.but_long_press) {
-			state.but_long_press = 0;
+		if(long_press) {
 			state.but_ur = 2;
 		}
 		else {
 			state.but_ur = 1;
 			state.abort = 1;
 		}
+	}
+}
+
+K_TIMER_DEFINE(button_timer, NULL, NULL);
+
+static uint32_t get_elapsed_ms(void)
+{
+	return (uint32_t)(BUT_TIMER_MS - k_timer_remaining_get(&button_timer));
+}
+
+static void button_callback(const struct device *dev, struct gpio_callback *cb,
+			    uint32_t pins)
+{
+	gpio_port_value_t port_val = 0;
+
+	/* All pushbuttons are on the same port */
+	dev = device_get_binding(DT_GPIO_LABEL(DT_ALIAS(sw0), gpios));
+	gpio_port_get(dev, &port_val);
+
+	if(port_val == 0) {
+		if(get_elapsed_ms() < DEBOUNCE_MS) {
+			/* Entirely ignore fast button pushes */
+			return;
+		} else if(get_elapsed_ms() > HOLD_MS) {
+			/* Long press */
+			process_button_presses(pins, true);
+		} else {
+			/* Short press */
+			process_button_presses(pins, false);
+		}
+
+		/* Abort running timer */
+		k_timer_stop(&button_timer);
+		k_wakeup(state.main_tid); /* Wake from sleep */
+	} else {
+		/* One-shot timer */
+		/* Use a timer instead of system uptime to prevent rollover issues */
+		k_timer_start(&button_timer, K_MSEC(BUT_TIMER_MS),
+			      K_NO_WAIT);
 	}
 }
 

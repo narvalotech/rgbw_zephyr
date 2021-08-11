@@ -27,7 +27,6 @@ struct g_state {
 	uint8_t but_ll;		/* Lower left button pressed */
 	uint8_t but_lr;		/* Lower right button pressed */
 	uint8_t but_ur;		/* Upper right button pressed */
-	bool but_long_press;	/* Button is being held */
 	/* TODO: clean this up */
 };
 
