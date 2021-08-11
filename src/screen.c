@@ -556,7 +556,7 @@ void screen_alarm_view(void)
 		 * - Top: configured days right to left, MSb is enabled/disabled
 		 * - Mid: Hours BCD
 		 * - Bot: Minutes BCD */
-		display_bytes(alarm_time.days | ((alarm_is_enabled() & 1) << 7),
+		display_bytes(alarm_time.days | ((alarm_is_enabled() & 1)),
 			      ((alarm_time.time.hours / 10) << 4) +
 				      (alarm_time.time.hours % 10),
 			      ((alarm_time.time.minutes / 10) << 4) +
