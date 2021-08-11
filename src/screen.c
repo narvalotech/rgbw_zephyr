@@ -377,6 +377,10 @@ void screen_clock(void)
 	}
 
 	if(arm_reset == 2) {
+		display_clear();
+		display_animate_slide(0, 50*16);
+		/* Leave more energy for flash swap to succeed */
+		board_enable_5v(0);
 		NVIC_SystemReset();
 	}
 
