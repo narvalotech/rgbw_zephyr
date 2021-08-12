@@ -182,10 +182,27 @@ static struct bt_conn_auth_cb auth_cb_display = {
 	.pairing_failed = pairing_failed,
 };
 
+void dfu_upload_complete_cb(void)
+{
+	state.pgm_state = PGM_STATE_DFU_END;
+	state.next = 1;
+	state.abort = 1;	/* Maybe this one is not necessary ? */
+}
+
 static int dfu_init(void)
 {
-	os_mgmt_register_group();
+	const img_mgmt_dfu_callbacks_t dfu_callbacks = {
+		.dfu_started_cb = NULL,
+		.dfu_stopped_cb = NULL,
+		.dfu_pending_cb = dfu_upload_complete_cb,
+		.dfu_confirmed_cb = NULL
+	};
+
+	/* Define a callback at the end of the image upload */
+	img_mgmt_register_callbacks(&dfu_callbacks);
 	img_mgmt_register_group();
+
+	os_mgmt_register_group();
 	int err = smp_bt_register();
 	return err;
 }

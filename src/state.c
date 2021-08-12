@@ -69,6 +69,10 @@ void main_state_loop(void)
 			screen_ble();
 			main_state_set(PGM_STATE_BLE, PGM_STATE_CLOCK);
 			break;
+		case PGM_STATE_DFU_END:
+			screen_dfu_end();
+			/* No exiting from this state */
+			break;
 		case PGM_STATE_CHARGE:
 			/* TODO: add charging screen */
 			break;

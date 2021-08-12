@@ -15,7 +15,8 @@ typedef enum {
 	PGM_STATE_ALARM_RING,
 	PGM_STATE_CHARGE,
 	PGM_STATE_BATT,
-	PGM_STATE_BLE
+	PGM_STATE_BLE,
+	PGM_STATE_DFU_END
 } pgm_state_t;
 
 struct g_state {
