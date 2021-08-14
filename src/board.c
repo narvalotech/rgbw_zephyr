@@ -18,7 +18,7 @@
 #define BATT_PIN     DT_GPIO_PIN(BATT_NODE, gpios)
 #define MOTOR_NODE   DT_NODELABEL(hapt_gpio)
 #define MOTOR_PIN    DT_GPIO_PIN(MOTOR_NODE, gpios)
-#define DEBOUNCE_MS  200
+#define DEBOUNCE_MS  100
 #define HOLD_MS      1000
 #define BUT_TIMER_MS 10000
 
@@ -94,9 +94,38 @@ static void process_button_presses(uint32_t pins, bool long_press)
 
 K_TIMER_DEFINE(button_timer, NULL, NULL);
 
+#define CTIM NRF_TIMER2
+uint32_t ctim_value(void)
+{
+	CTIM->TASKS_CAPTURE[0] = 1;
+	return CTIM->CC[0];
+}
+
+void ctim_stop(void)
+{
+	CTIM->TASKS_STOP = 1;
+	CTIM->TASKS_CLEAR = 1;
+	CTIM->CC[0] = 0;
+}
+
+void ctim_start(void)
+{
+	CTIM->TASKS_CLEAR = 1;
+	CTIM->TASKS_START = 1;
+}
+
+void ctim_setup(void)
+{
+	CTIM->TASKS_STOP = 1;
+	CTIM->TASKS_CLEAR = 1;
+	CTIM->MODE = 0x4;	/* 1MHz */
+	CTIM->BITMODE = 3;	/* 32-bit */
+}
+
 static uint32_t get_elapsed_ms(void)
 {
-	return (uint32_t)(BUT_TIMER_MS - k_timer_remaining_get(&button_timer));
+	/* return (uint32_t)(BUT_TIMER_MS - k_timer_remaining_get(&button_timer)); */
+	return (ctim_value() / 1000);
 }
 
 static void button_callback(const struct device *dev, struct gpio_callback *cb,
@@ -121,13 +150,12 @@ static void button_callback(const struct device *dev, struct gpio_callback *cb,
 		}
 
 		/* Abort running timer */
-		k_timer_stop(&button_timer);
+		ctim_stop();
 		k_wakeup(state.main_tid); /* Wake from sleep */
 	} else {
 		/* One-shot timer */
 		/* Use a timer instead of system uptime to prevent rollover issues */
-		k_timer_start(&button_timer, K_MSEC(BUT_TIMER_MS),
-			      K_NO_WAIT);
+		ctim_start();
 	}
 }
 
@@ -166,6 +194,9 @@ static void setup_buttons(void)
 			   BIT(SW_0_PIN) | BIT(SW_1_PIN) | BIT(SW_2_PIN));
 
 	gpio_add_callback(button, &button_cb_data);
+
+	/* Setup debounce timer */
+	ctim_setup();
 }
 
 static void setup_batt(void)
