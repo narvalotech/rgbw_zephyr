@@ -44,7 +44,7 @@ bool alarm_check(void)
 	      alarm_time.time.minutes + alarm_time.snooze_minutes))) {
 		/* Show alarm screen */
 		state.next = 1;
-		state.pgm_state = PGM_STATE_CLOCK_SET;
+		state.pgm_state = PGM_STATE_ALARM_RING;
 		/* Ring alarm (motor) */
 		k_work_submit(&alarm_work);
 		return true;
