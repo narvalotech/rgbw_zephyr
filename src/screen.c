@@ -225,12 +225,12 @@ static int input_days(uint8_t* p_days)
 	/* Loop through each day in the week, enabling or disabling it. */
 	/* Uses day_of_week_t values. */
 	/* Week is read from right to left. */
-	for(uint8_t day = MONDAY; day <= SUNDAY; day++)
+	for(uint8_t day = MONDAY; day <= SUNDAY && !state.main; day++)
 	{
 		state.but_ur = 0;
 		state.but_lr = 0;
 		/* UR moves to next day, LR enables/disables current day */
-		while((!state.but_ur) && (state.abort || state.main))
+		while(!state.but_ur && !state.main)
 		{
 			display_bytes(1 << day,
 				      days | ((state.but_lr & 0x01) << day),
@@ -241,7 +241,7 @@ static int input_days(uint8_t* p_days)
 		days &= ~(1 << day);
 		days |= (state.but_lr & 0x01) << day;
 	}
-	if(state.abort || state.main)
+	if(state.main)
 	{
 		return -1;
 	}
