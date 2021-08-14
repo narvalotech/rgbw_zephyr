@@ -545,9 +545,9 @@ void screen_alarm_view(void)
 			/* Start from the previous settings */
 			alarm_get(&alarm_time);
 			if(input_time(&alarm_time.time))
-				break;
+				continue;
 			if(input_days(&alarm_time.days))
-				break;
+				continue;
 			/* Apply the new settings */
 			alarm_set(&alarm_time);
 		}
@@ -565,7 +565,7 @@ void screen_alarm_view(void)
 
 		/* Show settings for 10s, then sleep */
 		k_msleep(10000);
-		board_suspend();
+		if(!state.abort) board_suspend();
 	}
 
 	state_clear();
