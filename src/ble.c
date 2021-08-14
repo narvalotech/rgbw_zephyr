@@ -189,15 +189,15 @@ void dfu_upload_complete_cb(void)
 	state.abort = 1;	/* Maybe this one is not necessary ? */
 }
 
+const img_mgmt_dfu_callbacks_t dfu_callbacks = {
+	.dfu_started_cb = NULL,
+	.dfu_stopped_cb = NULL,
+	.dfu_pending_cb = dfu_upload_complete_cb,
+	.dfu_confirmed_cb = NULL
+};
+
 static int dfu_init(void)
 {
-	const img_mgmt_dfu_callbacks_t dfu_callbacks = {
-		.dfu_started_cb = NULL,
-		.dfu_stopped_cb = NULL,
-		.dfu_pending_cb = dfu_upload_complete_cb,
-		.dfu_confirmed_cb = NULL
-	};
-
 	/* Define a callback at the end of the image upload */
 	img_mgmt_register_callbacks(&dfu_callbacks);
 	img_mgmt_register_group();
