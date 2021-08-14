@@ -750,6 +750,8 @@ void screen_ble(void)
 
 void screen_dfu_end(void)
 {
+	state_clear();
+	board_enable_5v(1);
 	display_clear();
 	display_mono_set_color(0, 0, 255); /* Blue */
 	display_string("dfu ok", 0, SCROLL_SPEED);

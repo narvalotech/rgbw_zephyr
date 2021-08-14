@@ -187,6 +187,7 @@ void dfu_upload_complete_cb(void)
 	state.pgm_state = PGM_STATE_DFU_END;
 	state.next = 1;
 	state.abort = 1;	/* Maybe this one is not necessary ? */
+	k_wakeup(state.main_tid); /* Wake from sleep */
 }
 
 const img_mgmt_dfu_callbacks_t dfu_callbacks = {
