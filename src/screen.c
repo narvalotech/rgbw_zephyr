@@ -575,7 +575,10 @@ void screen_alarm_view(void)
 
 		/* Show settings for 10s, then sleep */
 		k_msleep(10000);
-		if(!state.abort) board_suspend();
+		if (!state.abort)
+			board_suspend();
+		else
+			state.abort = 0;
 	}
 
 	state_clear();
