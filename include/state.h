@@ -25,6 +25,7 @@ struct g_state {
 	bool main;		/* Go back to main screen */
 	bool next;		/* Go to next screen/activity */
 	bool abort;	        /* Abort current procedure */
+	bool motion_wake;	/* Enable/disable motion wakeup */
 	uint8_t but_ll;		/* Lower left button pressed */
 	uint8_t but_lr;		/* Lower right button pressed */
 	uint8_t but_ur;		/* Upper right button pressed */

@@ -61,6 +61,7 @@ static void process_button_presses(uint32_t pins, bool long_press)
 			state.but_ll = 2;
 			/* Go to main screen immediately */
 			state.main = 1;
+			state.next = 1;
 			state.abort = 1;
 			clock_thread_unblock();
 		}

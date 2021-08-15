@@ -293,7 +293,7 @@ void screen_clock(void)
 	uint32_t arm_reset = 0;
 
 	int i = 0;
-	while(!state.next && !state.main)
+	while(!state.next)
 	{
 		i++;
 		if(i >= SLEEP_TIMEOUT)
@@ -302,6 +302,20 @@ void screen_clock(void)
 			/* Dim leds before turning off */
 			display_fade_next(DISP_FX_DIR_OUT, 500, DISP_FX_FADE);
 			board_suspend();
+		}
+
+		if(state.but_ll == 2) {
+			/* This shouldn't switch to next screen */
+			state.but_ll = 0;
+			state.main = 0;
+			state.next = 0;
+
+			display_clear();
+			state.motion_wake ^= 1;
+			if(state.motion_wake)
+				display_string("motion on", 0, SCROLL_SPEED);
+			else
+				display_string("motion off", 0, SCROLL_SPEED);
 		}
 
 		if(state.but_ur == 1) {

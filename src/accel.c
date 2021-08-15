@@ -214,7 +214,8 @@ static void acc_callback(const struct device *dev,
 			 struct gpio_callback *cb,
 			 uint32_t pins)
 {
-	k_wakeup(state.main_tid); /* Wake from sleep */
+	if(state.motion_wake)
+		k_wakeup(state.main_tid); /* Wake from sleep */
 }
 
 #define ACC_IRQ1_PIN     DT_GPIO_PIN(DT_NODELABEL(acc_int1), gpios)
@@ -222,12 +223,14 @@ static void acc_callback(const struct device *dev,
 
 void acc_app_init(void)
 {
+	/* Enable accelerometer motion app wakeup */
+	state.motion_wake = 1;
+
 	// Enable hpf on click only, fc = 1Hz @ fs=50Hz
 	acc_hpf_config(HP_MODE_NORMAL | HPCLICK);
 	acc_enable_click(); // Enable doubleclick detection on Z-axis
 
 	/* Configure interrupt pins */
-
 	const struct device *gpio_dev;
 	gpio_dev = device_get_binding(DT_GPIO_LABEL(DT_NODELABEL(acc_int1), gpios));
 
