@@ -227,20 +227,30 @@ static int input_days(uint8_t* p_days)
 	/* Week is read from right to left. */
 	for(uint8_t day = MONDAY; day <= SUNDAY && !state.main; day++)
 	{
+		/* Keep previous enable state */
+		uint8_t en_day = (days & (1 << day)) >> day;
+
 		state.but_ur = 0;
 		state.but_lr = 0;
+
 		/* UR moves to next day, LR enables/disables current day */
 		while(!state.but_ur && !state.main)
 		{
 			display_bytes(1 << day,
-				      days | ((state.but_lr & 0x01) << day),
+				      days | ((en_day & 0x01) << day),
 				      0,
 				      0);
 			k_sleep(K_FOREVER); /* Wait for next button press */
+			if(state.but_lr) {
+				en_day ^= 1;
+				state.but_lr = 0;
+			}
 		}
 		days &= ~(1 << day);
 		days |= (state.but_lr & 0x01) << day;
 	}
+
+	state_clear();
 	if(state.main)
 	{
 		return -1;
