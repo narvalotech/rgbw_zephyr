@@ -247,7 +247,7 @@ static int input_days(uint8_t* p_days)
 			}
 		}
 		days &= ~(1 << day);
-		days |= (state.but_lr & 0x01) << day;
+		days |= (en_day & 0x01) << day;
 	}
 
 	state_clear();
