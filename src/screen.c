@@ -304,20 +304,6 @@ void screen_clock(void)
 			board_suspend();
 		}
 
-		if(state.but_ll == 2) {
-			/* This shouldn't switch to next screen */
-			state.but_ll = 0;
-			state.main = 0;
-			state.next = 0;
-
-			display_clear();
-			state.motion_wake ^= 1;
-			if(state.motion_wake)
-				display_string("motion on", 0, SCROLL_SPEED);
-			else
-				display_string("motion off", 0, SCROLL_SPEED);
-		}
-
 		if(state.but_ur == 1) {
 			state.but_ur = 0;
 			if(i == 0) {
@@ -407,6 +393,17 @@ void screen_clock(void)
 		/* Leave more energy for flash swap to succeed */
 		board_enable_5v(0);
 		NVIC_SystemReset();
+	}
+
+	if(state.but_ll == 2) {
+		/* Toggle wake-on-movement */
+		/* Very useful for not draining the battery when biking */
+		display_clear();
+		state.motion_wake ^= 1;
+		if(state.motion_wake)
+			display_string("motion on", 0, SCROLL_SPEED);
+		else
+			display_string("motion off", 0, SCROLL_SPEED);
 	}
 
 	state_clear();
