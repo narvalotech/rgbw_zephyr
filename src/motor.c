@@ -70,12 +70,32 @@ static void motor_timer_callback(struct k_timer *timer_id)
 }
 K_TIMER_DEFINE(motor_timer, motor_timer_callback, NULL);
 
+/* TODO: pass through work data instead */
+uint32_t m_time_us = 0;
+uint32_t m_cycles = 0;
+
+struct k_work motor_work;
+static void motor_pulse_work(struct k_work *item)
+{
+	ARG_UNUSED(item);
+	motor_pulse_single(m_time_us, m_cycles);
+}
+
 void motor_init(void)
 {
 	motor = device_get_binding(PWM_LABEL);
 
 	/* Switch off motor */
 	pwm_pin_set_usec(motor, PWM_CHANNEL, PWM_PERIOD_US, 0, PWM_FLAGS);
+
+	k_work_init(&motor_work, motor_pulse_work);
+}
+
+void motor_pulse_async(uint32_t time_us, uint32_t cycles)
+{
+	m_time_us = time_us;
+	m_cycles = cycles;
+	k_work_submit(&motor_work);
 }
 
 void motor_pulse_single(uint32_t time_us, uint32_t cycles)
