@@ -20,7 +20,7 @@
 #define MOTOR_PIN    DT_GPIO_PIN(MOTOR_NODE, gpios)
 #define DEBOUNCE_MS  100
 #define HOLD_MS      1000
-#define BUT_TIMER_MS 10000
+#define PULSE_TIME_US (50*1000)
 
 extern struct g_state state;
 
@@ -55,6 +55,7 @@ void board_suspend(void)
 
 static void process_button_presses(uint32_t pins, bool long_press)
 {
+	k_wakeup(state.main_tid); /* Wake from sleep */
 	if (pins & (1 << SW_0_PIN))
 	{
 		if(long_press) {
@@ -93,70 +94,56 @@ static void process_button_presses(uint32_t pins, bool long_press)
 	}
 }
 
-K_TIMER_DEFINE(button_timer, NULL, NULL);
+static void button_timer_callback(struct k_timer *timer_id);
+K_TIMER_DEFINE(button_timer, button_timer_callback, NULL);
 
-#define CTIM NRF_TIMER2
-uint32_t ctim_value(void)
-{
-	CTIM->TASKS_CAPTURE[0] = 1;
-	return CTIM->CC[0];
-}
+/* Pushbutton state-machine */
+enum pb_states {
+	IDLE = 0,
+	START,			/* Initial pulses */
+	HOLD,			/* User is long-pressing */
+	STOP,			/* Trailing pulses */
+};
 
-void ctim_stop(void)
-{
-	CTIM->TASKS_STOP = 1;
-	CTIM->TASKS_CLEAR = 1;
-	CTIM->CC[0] = 0;
-}
-
-void ctim_start(void)
-{
-	CTIM->TASKS_CLEAR = 1;
-	CTIM->TASKS_START = 1;
-}
-
-void ctim_setup(void)
-{
-	CTIM->TASKS_STOP = 1;
-	CTIM->TASKS_CLEAR = 1;
-	CTIM->MODE = 0x4;	/* 1MHz */
-	CTIM->BITMODE = 3;	/* 32-bit */
-}
-
-static uint32_t get_elapsed_ms(void)
-{
-	/* return (uint32_t)(BUT_TIMER_MS - k_timer_remaining_get(&button_timer)); */
-	return (ctim_value() / 1000);
-}
-
-static void button_callback(const struct device *dev, struct gpio_callback *cb,
-			    uint32_t pins)
+static uint32_t pb_state = IDLE;
+static uint32_t last_pins = 0;
+static void button_timer_callback(struct k_timer *timer_id)
 {
 	gpio_port_value_t port_val = 0;
+	const struct device *dev;
 
 	/* All pushbuttons are on the same port */
 	dev = device_get_binding(DT_GPIO_LABEL(DT_ALIAS(sw0), gpios));
 	gpio_port_get(dev, &port_val);
 
-	if(port_val == 0) {
-		if(get_elapsed_ms() < DEBOUNCE_MS) {
-			/* Entirely ignore fast button pushes */
-			return;
-		} else if(get_elapsed_ms() > HOLD_MS) {
-			/* Long press */
-			process_button_presses(pins, true);
+	if(pb_state == START) {
+		if(port_val) {
+			pb_state = HOLD;
+			k_timer_start(&button_timer, K_MSEC(HOLD_MS), K_NO_WAIT);
 		} else {
-			/* Short press */
-			process_button_presses(pins, false);
+			pb_state = IDLE;
+			process_button_presses(last_pins, false);
 		}
+	} else if (pb_state == HOLD) {
+		process_button_presses(last_pins, true);
+	} else if (pb_state == STOP) {
+		pb_state = IDLE;
+	}
+}
 
-		/* Abort running timer */
-		ctim_stop();
-		k_wakeup(state.main_tid); /* Wake from sleep */
-	} else {
-		/* One-shot timer */
-		/* Use a timer instead of system uptime to prevent rollover issues */
-		ctim_start();
+static void button_callback(const struct device *dev, struct gpio_callback *cb,
+			    uint32_t pins)
+{
+	if(pb_state == IDLE) {
+		pb_state = START;
+		last_pins = pins;
+		k_timer_start(&button_timer, K_MSEC(DEBOUNCE_MS), K_NO_WAIT);
+	} else if (pb_state == HOLD) {
+		if(k_timer_remaining_get(&button_timer)) {
+			process_button_presses(last_pins, false);
+		}
+		pb_state = STOP;
+		k_timer_start(&button_timer, K_MSEC(DEBOUNCE_MS), K_NO_WAIT);
 	}
 }
 
@@ -195,9 +182,6 @@ static void setup_buttons(void)
 			   BIT(SW_0_PIN) | BIT(SW_1_PIN) | BIT(SW_2_PIN));
 
 	gpio_add_callback(button, &button_cb_data);
-
-	/* Setup debounce timer */
-	ctim_setup();
 }
 
 static void setup_batt(void)
