@@ -6,6 +6,11 @@ It uses zephyr / Nordic Connect SDK as base.
 
 Code is not production quality obv, since this is my free time :p
 
+**Important**: To those who want to use this as a base for their app, be warned that not only is the code not production quality, I also frequently push broken/wip code to _master_ as I try new things.
+Code on _master_ usually compiles but is not guaranteed to not have any major bugs.
+
+SDK version used is nRF Connect SDK v1.5.1
+
 Hardware
 --------
 
@@ -27,9 +32,10 @@ Features
 
 - Time display in BCD and digital formats
 - Date display
-- Shake wrist to wake display up
+- Shake wrist to wake display up (can be temporarily disabled)
 - Set the time using the accelerometer (fun!)
 - Basic stopwatch
-- Basic countdown timer
+- Basic countdown timer (with fast restart)
+- Alarm with snoozing and weekday support
 - Bluetooth Current Time Service implementation
 - NCS FOTA (bluetooth fw upgrade)
