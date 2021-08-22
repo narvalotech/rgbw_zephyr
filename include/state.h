@@ -35,5 +35,6 @@ struct g_state {
 void state_clear(void);
 void main_state_set(pgm_state_t curr_state, pgm_state_t new_state);
 void main_state_loop(void);
+bool state_is_button_pressed(void);
 
 #endif // __STATE_H_

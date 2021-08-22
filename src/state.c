@@ -5,6 +5,11 @@
 
 extern struct g_state state;
 
+bool state_is_button_pressed(void)
+{
+	return (state.but_ll || state.but_lr || state.but_ur);
+}
+
 void state_clear(void)
 {
 	/* Clear all state except main/pgm */

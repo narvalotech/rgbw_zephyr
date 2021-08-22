@@ -584,9 +584,10 @@ void screen_alarm_view(void)
 			      ((alarm_time.time.minutes / 10) << 4) +
 				      (alarm_time.time.minutes % 10), 0);
 
-		/* Show settings for 10s, then sleep */
+		/* Show settings for 10s, then sleep if user did not press
+		 * any buttons */
 		k_msleep(10000);
-		if (!state.abort)
+		if (!state_is_button_pressed())
 			board_suspend();
 		else
 			state.abort = 0;
