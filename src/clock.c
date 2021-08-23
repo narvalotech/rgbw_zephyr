@@ -81,16 +81,18 @@ void clock_increment_seconds(uint32_t seconds)
 		{
 			currentTime.minutes++;
 			currentTime.seconds = 0;
+
+			if(currentTime.minutes == 60)
+			{
+				currentTime.hours++;
+				currentTime.minutes = 0;
+			}
+			if(currentTime.hours == 24) {
+				currentTime.hours = 0;
+				cal_increment_day();
+			}
+
 			alarm_check();
-		}
-		if(currentTime.minutes == 60)
-		{
-			currentTime.hours++;
-			currentTime.minutes = 0;
-		}
-		if(currentTime.hours == 24) {
-			currentTime.hours = 0;
-			cal_increment_day();
 		}
 	}
 }
