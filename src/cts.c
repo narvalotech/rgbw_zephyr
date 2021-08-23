@@ -103,6 +103,7 @@ struct current_time *bt_cts_get_current_time(void)
 {
 	time_struct_t * p_time = clock_get_time_p();
 	struct date_time* p_date = cal_get_date_ptr();
+	day_of_week_t day = cal_get_weekday(p_date);
 
 	/* Copy time section */
 	memcpy(&current_local_time.exact_time_256.day_date_time.date_time.hours,
@@ -111,6 +112,9 @@ struct current_time *bt_cts_get_current_time(void)
 	/* Copy date section */
 	memcpy(&current_local_time.exact_time_256.day_date_time.date_time,
 	       p_date, sizeof(uint16_t) + sizeof(uint8_t) + sizeof(uint8_t));
+
+	current_local_time.exact_time_256.day_date_time.
+		day_of_week.day_of_week = day;
 
 	return &current_local_time;
 }
