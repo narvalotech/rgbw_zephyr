@@ -32,6 +32,9 @@ static void ring(struct k_work *item)
 void alarm_set(alarm_struct_t * p_alarm_time)
 {
 	memcpy(&alarm_time, p_alarm_time, sizeof(alarm_time));
+	memcpy(&alarm_time.time_sn,
+	       &p_alarm_time->time,
+	       sizeof(time_struct_t));
 }
 
 void alarm_get(alarm_struct_t * p_alarm_time)
@@ -48,9 +51,8 @@ bool alarm_check(void)
 		return false;
 
 	time_struct_t *p_time = clock_get_time_p();
-	if ((p_time->hours == alarm_time.time.hours &&
-	     (p_time->minutes ==
-	      alarm_time.time.minutes + alarm_time.snooze_minutes))) {
+	if ((p_time->hours == alarm_time.time_sn.hours &&
+	     (p_time->minutes == alarm_time.time_sn.minutes))) {
 		/* Show alarm screen */
 		state.next = 1;
 		state.pgm_state = PGM_STATE_ALARM_RING;
@@ -74,14 +76,23 @@ bool alarm_is_enabled(void)
 }
 
 void alarm_snooze(uint8_t minutes) {
-	/* Porbably should handle rollover n stuff, oh well */
-	alarm_time.snooze_minutes += minutes;
+	/* Still doesn't handle day-rollover tho */
+	alarm_time.time_sn.minutes += minutes;
+	if(alarm_time.time_sn.minutes >= 60) {
+		alarm_time.time_sn.hours += 1;
+		alarm_time.time_sn.minutes -= 60;
+	}
+
 	/* Cut the power to the motor */
 	k_timer_stop(&alarm_timer);
 }
 
 void alarm_stop() {
-	alarm_time.snooze_minutes = 0;
+	/* Reset snooze-adjusted alarm time */
+	memcpy(&alarm_time.time_sn,
+	       &alarm_time.time,
+	       sizeof(time_struct_t));
+
 	/* Cut the power to the motor */
 	k_timer_stop(&alarm_timer);
 }

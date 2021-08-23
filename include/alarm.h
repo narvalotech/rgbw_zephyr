@@ -6,8 +6,8 @@
 typedef struct
 {
 	time_struct_t time;
+	time_struct_t time_sn;	/* Snooze-adjusted time */
 	uint8_t days;
-	uint8_t snooze_minutes;
 } alarm_struct_t;
 
 /* days: bitmap with day_of_week_t bit-ordering */
