@@ -99,10 +99,12 @@ static int cts_init(const struct device *dev)
 	return 0;
 }
 
+#pragma GCC optimize("O0")
 struct current_time *bt_cts_get_current_time(void)
 {
 	time_struct_t * p_time = clock_get_time_p();
 	struct date_time* p_date = cal_get_date_ptr();
+	__NOP();
 	day_of_week_t day = cal_get_weekday(p_date);
 
 	/* Copy time section */
