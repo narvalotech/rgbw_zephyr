@@ -10,6 +10,11 @@
 #include <stdbool.h>
 #include <zephyr/types.h>
 
+/* Need to pack the structs to be compatible with bluetooth spec */
+#ifndef __PACKED
+#define __PACKED __attribute__((__packed__))
+#endif
+
 struct date_time {
 	uint16_t year;
 	uint8_t month;
@@ -17,7 +22,7 @@ struct date_time {
 	uint8_t hours;
 	uint8_t minutes;
 	uint8_t seconds;
-};
+}__PACKED;
 
 typedef enum {
 	UNKNOWN = 0,
@@ -37,12 +42,12 @@ struct day_of_week {
 struct day_date_time {
 	struct date_time date_time;
 	struct day_of_week day_of_week;
-};
+}__PACKED;
 
 struct exact_time_256 {
 	struct day_date_time day_date_time;
 	uint8_t fractions256; /* Number of 1/256 fractions of a second */
-};
+}__PACKED;
 
 typedef enum {
 	MANUAL_TIME_UPDATE = 0,
@@ -54,7 +59,7 @@ typedef enum {
 struct current_time {
 	struct exact_time_256 exact_time_256;
 	uint8_t adjust_reason;
-};
+}__PACKED;
 
 struct current_time *bt_cts_get_current_time(void);
 
