@@ -615,8 +615,8 @@ void screen_alarm_ring(void)
 			alarm_snooze(10);
 			exit = true;
 			display_string("snooze", 0, SCROLL_SPEED);
-		} else if(state.but_ur == 2) {
-			state.but_ur = 0;
+		} else if(state.but_lr == 1) {
+			state.but_lr = 0;
 			alarm_stop();
 			exit = true;
 			display_string("stop", 0, SCROLL_SPEED);
