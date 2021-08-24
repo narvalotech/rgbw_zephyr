@@ -7,8 +7,8 @@
 #include "alarm.h"
 
 #define PULSE_TIME_US (250*1000)
-#define PULSE_TIMES 3
-#define PULSE_INTERVAL K_SECONDS(3)
+#define PULSE_TIMES 1
+#define PULSE_INTERVAL K_SECONDS(2)
 
 struct k_work alarm_work;
 static alarm_struct_t alarm_time;
