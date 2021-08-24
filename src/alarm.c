@@ -56,9 +56,6 @@ bool alarm_check(void)
 		/* Show alarm screen */
 		state.next = 1;
 		state.pgm_state = PGM_STATE_ALARM_RING;
-		/* Ring alarm (motor) */
-		k_work_submit(&alarm_work);
-		k_timer_start(&alarm_timer, PULSE_INTERVAL, PULSE_INTERVAL);
 		return true;
 	}
 
@@ -95,6 +92,12 @@ void alarm_stop() {
 
 	/* Cut the power to the motor */
 	k_timer_stop(&alarm_timer);
+}
+
+void alarm_start(void) {
+	/* Ring alarm (motor) */
+	k_work_submit(&alarm_work);
+	k_timer_start(&alarm_timer, PULSE_INTERVAL, PULSE_INTERVAL);
 }
 
 static int alarm_init(const struct device *dev) {

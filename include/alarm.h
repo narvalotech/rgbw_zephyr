@@ -19,7 +19,8 @@ bool alarm_check(void);
 void alarm_enable(bool enable);
 bool alarm_is_enabled(void);
 void alarm_snooze(uint8_t minutes);
-void alarm_stop();
+void alarm_stop(void);
+void alarm_start(void);
 
 /* Missing:
  * - set alarm time

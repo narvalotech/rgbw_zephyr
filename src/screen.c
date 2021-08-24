@@ -626,6 +626,10 @@ void screen_alarm_ring(void)
 		display_bcd(p_time->hours,
 			    p_time->minutes,
 			    p_time->seconds, 0);
+		/* Start ringing the alarm */
+		alarm_start();
+
+		/* Sync on seconds */
 		clock_thread_sync();
 	}
 	state_clear();
