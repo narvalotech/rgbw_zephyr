@@ -608,6 +608,9 @@ void screen_alarm_ring(void)
 	display_clear();
 	display_mono_set_color(185, 78, 2); /* Brown-ish */
 
+	/* Start ringing the alarm */
+	alarm_start();
+
 	while(!exit)
 	{
 		if (state.but_ur == 1) {
@@ -626,9 +629,6 @@ void screen_alarm_ring(void)
 		display_bcd(p_time->hours,
 			    p_time->minutes,
 			    p_time->seconds, 0);
-		/* Start ringing the alarm */
-		alarm_start();
-
 		/* Sync on seconds */
 		clock_thread_sync();
 	}
