@@ -160,7 +160,7 @@ static int input_date(struct date_time* p_date)
 	return 0;
 }
 
-static int input_time(time_struct_t* p_time)
+static int input_time(time_struct_t* p_time, bool seconds)
 {
 	time_struct_t time = {0, 0, 0};
 
@@ -168,16 +168,14 @@ static int input_time(time_struct_t* p_time)
 	state_clear();
 	display_string("set time",0,SCROLL_SPEED);
 	k_msleep(DISP_DELAY);
-	if(state.next || state.main)
-	{
+	if(state.next || state.main) {
 		return -1;
 	}
 
 	display_string("  hours",0,SCROLL_SPEED);
 	k_msleep(DISP_DELAY);
 	time.hours = (uint8_t)numberSelector(p_time->hours, 0, 23, DISPLAY_DIGITAL);
-	if(state.next || state.main)
-	{
+	if(state.next || state.main) {
 		return -1;
 	}
 	k_msleep(DISP_DELAY);
@@ -185,20 +183,20 @@ static int input_time(time_struct_t* p_time)
 	display_string("  minutes",0,SCROLL_SPEED);
 	k_msleep(DISP_DELAY);
 	time.minutes = (uint8_t)numberSelector(p_time->minutes, 0, 59, DISPLAY_DIGITAL);
-	if(state.next || state.main)
-	{
+	if(state.next || state.main) {
 		return -1;
 	}
 	k_msleep(DISP_DELAY);
 
-	display_string("  seconds",0,SCROLL_SPEED);
-	k_msleep(DISP_DELAY);
-	time.seconds = (uint8_t)numberSelector(p_time->seconds, 0, 59, DISPLAY_DIGITAL);
-	if(state.next || state.main)
-	{
-		return -1;
+	if(seconds) {
+		display_string("  seconds",0,SCROLL_SPEED);
+		k_msleep(DISP_DELAY);
+		time.seconds = (uint8_t)numberSelector(p_time->seconds, 0, 59, DISPLAY_DIGITAL);
+		if(state.next || state.main) {
+			return -1;
+		}
+		k_msleep(DISP_DELAY);
 	}
-	k_msleep(DISP_DELAY);
 
 	/* If we were not aborted during whole selection process
 	 * then save selection. */
@@ -270,7 +268,7 @@ void screen_time_set(void)
 	memcpy(&newTime, clock_get_time_p(), sizeof(newTime));
 
 	display_mono_set_color(255, 0, 0);
-	if(!input_time(&newTime))
+	if(!input_time(&newTime, false))
 	{
 		clock_set_time(newTime);
 		display_string("  success  ",0,SCROLL_SPEED);
@@ -515,7 +513,7 @@ void screen_countdown(void)
 			if(cd_timer_state_get() == CD_TIMER_STOPPED)
 			{
 				/* Select countdown time */
-				if(!input_time(&init_time)) {
+				if(!input_time(&init_time, false)) {
 					/* Start timer */
 					cd_timer_start(&init_time);
 					state_clear();
@@ -565,7 +563,7 @@ void screen_alarm_view(void)
 			state.but_lr = 0;
 			/* Start from the previous settings */
 			alarm_get(&alarm_time);
-			if(input_time(&alarm_time.time))
+			if(input_time(&alarm_time.time, false))
 				continue;
 			if(input_days(&alarm_time.days))
 				continue;
