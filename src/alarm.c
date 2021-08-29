@@ -1,3 +1,4 @@
+#include <zephyr.h>
 #include <string.h>
 #include <init.h>
 #include "calendar.h"
@@ -56,6 +57,9 @@ bool alarm_check(void)
 		/* Show alarm screen */
 		state.next = 1;
 		state.pgm_state = PGM_STATE_ALARM_RING;
+		/* Wake from sleep to show alarm screen and to begin
+		 * ringing. */
+		k_wakeup(state.main_tid);
 		return true;
 	}
 
