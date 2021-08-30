@@ -235,17 +235,17 @@ static int input_days(uint8_t* p_days)
 		while(!state.but_ur && !state.main)
 		{
 			display_bytes(1 << day,
-				      days | ((en_day & 0x01) << day),
+				      days,
 				      0,
 				      0);
 			k_sleep(K_FOREVER); /* Wait for next button press */
 			if(state.but_lr) {
 				en_day ^= 1;
 				state.but_lr = 0;
+				days &= ~(1 << day);
+				days |= (en_day & 0x01) << day;
 			}
 		}
-		days &= ~(1 << day);
-		days |= (en_day & 0x01) << day;
 	}
 
 	state_clear();
