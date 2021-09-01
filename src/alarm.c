@@ -48,7 +48,7 @@ bool alarm_check(void)
 	if (!alarm_enabled)
 		return false;
 
-	if (!(cal_get_weekday(NULL) & alarm_time.days))
+	if (!((1 << cal_get_weekday(NULL)) & alarm_time.days))
 		return false;
 
 	time_struct_t *p_time = clock_get_time_p();
