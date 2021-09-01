@@ -215,7 +215,7 @@ static int input_days(uint8_t* p_days)
 	state_clear();
 	display_string("set days", 0, SCROLL_SPEED);
 	k_msleep(DISP_DELAY);
-	if(state.abort || state.main)
+	if(state.next || state.main)
 	{
 		return -1;
 	}
