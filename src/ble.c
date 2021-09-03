@@ -30,8 +30,16 @@ static const struct bt_data sd[] = {
 	BT_DATA_BYTES(BT_DATA_UUID128_ALL, BT_UUID_LBS_VAL),
 };
 
+void gatt_mtu_cb(struct bt_conn *conn, uint8_t err,
+		 struct bt_gatt_exchange_params *params)
+{
+	/* Do nothing */
+}
+
 static void connected(struct bt_conn *conn, uint8_t err)
 {
+	static struct bt_gatt_exchange_params gatt_mtu_params;
+
 	if (err) {
 		printk("Connection failed (err %u)\n", err);
 		return;
@@ -42,8 +50,13 @@ static void connected(struct bt_conn *conn, uint8_t err)
 
 	board_enable_5v(1);
 	display_clear();
-	display_string("connect", 0, 50);
+	display_string("conn", 0, 50);
 	board_enable_5v(0);
+
+	/* Exchange MTU to be able to transfer CTS characteristic
+	 * in one go. */
+	gatt_mtu_params.func = gatt_mtu_cb;
+	bt_gatt_exchange_mtu(conn, &gatt_mtu_params);
 
 	/* TODO: re-enable whe it works reliably */
 	/* if (bt_conn_set_security(conn, BT_SECURITY_L4)) { */
@@ -103,6 +116,7 @@ static struct bt_conn_cb conn_callbacks = {
 
 static struct bt_conn_auth_cb conn_auth_callbacks;
 
+/* TODO: remove LBS */
 static void app_led_cb(bool led_state)
 {
 	board_enable_5v(1);
