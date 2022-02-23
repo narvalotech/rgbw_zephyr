@@ -56,6 +56,8 @@ void board_suspend(void)
 static void process_button_presses(uint32_t pins, bool long_press)
 {
 	k_wakeup(state.main_tid); /* Wake from sleep */
+	clock_thread_unblock();   /* Unblock if syncing on seconds */
+
 	if (pins & (1 << SW_0_PIN))
 	{
 		if(long_press) {
@@ -64,13 +66,11 @@ static void process_button_presses(uint32_t pins, bool long_press)
 			state.main = 1;
 			state.next = 1;
 			state.abort = 1;
-			clock_thread_unblock();
 		}
 		else {
 			state.but_ll = 1;
 			state.abort = 1;
 			state.next = 1;
-			clock_thread_unblock();
 		}
 	}
 	if (pins & (1 << SW_1_PIN))
