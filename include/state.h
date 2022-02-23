@@ -5,6 +5,9 @@
 #include <stdint.h>
 #include <kernel.h>
 
+#define BRIGHTNESS_DAY 255
+#define BRIGHTNESS_NIGHT 50
+
 typedef enum {
 	PGM_STATE_TEST_TILT,
 	PGM_STATE_CLOCK,
@@ -29,6 +32,7 @@ struct g_state {
 	uint8_t but_ll;		/* Lower left button pressed */
 	uint8_t but_lr;		/* Lower right button pressed */
 	uint8_t but_ur;		/* Upper right button pressed */
+	uint8_t brightness; 	/* Maximum display brightness */
 	/* TODO: clean this up */
 };
 

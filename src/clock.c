@@ -4,6 +4,9 @@
 #include "calendar.h"
 #include "alarm.h"
 #include "clock.h"
+#include "state.h"
+
+extern struct g_state state;
 
 time_struct_t currentTime;
 
@@ -73,6 +76,19 @@ void clock_set_time(time_struct_t newTime)
 	currentTime.seconds = newTime.seconds;
 }
 
+/* Find some other place for this */
+static void brightness_adjust(void)
+{
+	if(currentTime.hours == 21
+	   && currentTime.minutes == 0) {
+		state.brightness = BRIGHTNESS_NIGHT;
+	}
+	else if(currentTime.hours == 7
+		&& currentTime.minutes == 0) {
+		state.brightness = BRIGHTNESS_DAY;
+	}
+}
+
 void clock_increment_seconds(uint32_t seconds)
 {
 	for(; seconds>0; seconds--) {
@@ -93,6 +109,7 @@ void clock_increment_seconds(uint32_t seconds)
 			}
 
 			alarm_check();
+			brightness_adjust();
 		}
 	}
 }

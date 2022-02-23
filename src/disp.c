@@ -54,11 +54,16 @@ void display_init() {
 	display[1] = 0x00; // Bottom
 	display[2] = 0x00; // Middle
 	display[3] = 0xFF; // Intensity
+
+	state.brightness = 255;
 }
 
 /* Uses disp_color[] global variable */
 void display_mono_led(uint8_t intensity, uint32_t led_pos)
 {
+	if(intensity > state.brightness)
+		intensity = state.brightness;
+
 	rgb_led_set_led_scale(p_led_cfg,
 			      disp_color[0],
 			      disp_color[1],

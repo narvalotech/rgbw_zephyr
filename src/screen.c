@@ -324,6 +324,17 @@ void screen_clock(void)
 					cal_get_year());
 				display_string(date_buf, 0, 80);
 
+				if(state.but_lr) {
+					state.but_lr = 0;
+
+					// toggle low-high brightness
+					if(state.brightness != BRIGHTNESS_DAY) {
+						state.brightness = BRIGHTNESS_DAY;
+					} else {
+						state.brightness = BRIGHTNESS_NIGHT;
+					}
+				}
+
 				if(state.but_ur == 2) {
 					/* If user long-pressed button during
 					 * date display, then set the date. */
