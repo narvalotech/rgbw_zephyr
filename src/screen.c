@@ -501,6 +501,28 @@ void screen_stopwatch(void)
 	display_clear();
 }
 
+static int input_timer(time_struct_t* p_time)
+{
+	time_struct_t time = {0, 0, 0};
+
+	display_clear();
+	state_clear();
+
+	time.minutes = (uint8_t)numberSelector(p_time->minutes, 0, 59, DISPLAY_DIGITAL);
+	if(state.next || state.main) {
+		return -1;
+	}
+	k_msleep(DISP_DELAY);
+
+	/* If we were not aborted during whole selection process
+	 * then save selection. */
+	p_time->hours = time.hours;
+	p_time->minutes = time.minutes;
+	p_time->seconds = 0;
+
+	return 0;
+}
+
 void screen_countdown(void)
 {
 	uint32_t i = 0;
@@ -544,7 +566,7 @@ void screen_countdown(void)
 			if(cd_timer_state_get() == CD_TIMER_STOPPED)
 			{
 				/* Select countdown time */
-				if(!input_time(&init_time, false)) {
+				if(!input_timer(&init_time)) {
 					/* Start timer */
 					cd_timer_start(&init_time);
 					state_clear();
