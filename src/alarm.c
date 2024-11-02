@@ -51,7 +51,7 @@ bool alarm_check(void)
 	if (!((1 << cal_get_weekday(NULL)) & alarm_time.days))
 		return false;
 
-	time_struct_t *p_time = clock_get_time_p();
+	time_struct_t *p_time = clock_get_time_p(0);
 	if ((p_time->hours == alarm_time.time_sn.hours &&
 	     (p_time->minutes == alarm_time.time_sn.minutes))) {
 		/* Show alarm screen */

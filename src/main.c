@@ -28,6 +28,10 @@ rgb_led_string_config_t led_cfg =
 
 struct g_state state;
 
+extern int32_t numberSelector(int32_t defaultNum,
+		       int32_t startNum,
+		       int32_t endNum,
+		       uint8_t displayType);
 void main(void)
 {
 	/* Reset global state */
@@ -55,13 +59,15 @@ void main(void)
 	display_clear();
 	display_animate_slide(0, 50*16);
 
+	/* numberSelector(-10, -23, +23, DISPLAY_BCD); */
+
 	display_clear();
 	display_mono_set_color(255, 0, 0);
 	display_string("hello", 0, 50);
 
 	ble_init();
-	/* Advertise by default */
-	ble_adv(1);
+	/* Don't advertise by default */
+	ble_adv(0);
 
 	state.pgm_state = PGM_STATE_CLOCK;
 	while(1)

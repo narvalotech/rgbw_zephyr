@@ -101,7 +101,7 @@ static int cts_init(const struct device *dev)
 
 struct current_time *bt_cts_get_current_time(void)
 {
-	time_struct_t * p_time = clock_get_time_p();
+	time_struct_t * p_time = clock_get_time_p(0);
 	struct date_time* p_date = cal_get_date_ptr();
 	day_of_week_t day = cal_get_weekday(p_date);
 

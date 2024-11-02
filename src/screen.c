@@ -45,12 +45,13 @@ static int abs(int val)
 }
 
 /* TODO: clean this up, remove int16's etc */
-uint32_t numberSelector(uint16_t defaultNum,
-			uint16_t startNum,
-			uint16_t endNum,
-			uint8_t displayType)
+/* TODO: make DIPLAY_DIGITAL work with negative numbers */
+int32_t numberSelector(int32_t defaultNum,
+		       int32_t startNum,
+		       int32_t endNum,
+		       uint8_t displayType)
 {
-	uint32_t currentNumber = defaultNum;
+	int32_t currentNumber = defaultNum;
 	int32_t accel;
 	uint32_t dispTime = 1000;
 	int32_t acc_val[3] = {0};
@@ -64,14 +65,17 @@ uint32_t numberSelector(uint16_t defaultNum,
 		switch(displayType)
 		{
 			case DISPLAY_DIGITAL:
-			display_number(currentNumber, dispTime);
-			break;
+				display_number(currentNumber, dispTime);
+				break;
 			case DISPLAY_BCD:
-			display_bcd(0, currentNumber, 0, dispTime);
-			break;
+				if(currentNumber > 0) {
+					display_bcd(0, currentNumber, 0, dispTime);
+				} else {
+					display_bcd(currentNumber, 0, 0, dispTime);
+				}
+				break;
 			default:
-			display_bcd(0, currentNumber, 0, dispTime);
-			break;
+				return 0;
 		}
 
 		// Get acceleration data
@@ -91,19 +95,18 @@ uint32_t numberSelector(uint16_t defaultNum,
 		}
 
 		// Increment/decrement number
-		if(accel > ITEM_SCROLL_THR)
-		{
-			if(currentNumber < endNum)
+		if (accel > ITEM_SCROLL_THR) {
+			if (currentNumber < endNum) {
 				currentNumber++;
-			else
+			} else {
 				currentNumber = startNum;
-		}
-		else if(accel < -ITEM_SCROLL_THR)
-		{
-			if(currentNumber > startNum)
+			}
+		} else if (accel < -ITEM_SCROLL_THR) {
+			if (currentNumber > startNum) {
 				currentNumber--;
-			else
+			} else {
 				currentNumber = endNum;
+			}
 		}
 	}
 
@@ -265,16 +268,65 @@ void screen_time_set(void)
 	time_struct_t newTime;
 
 	/* Start selector at current time */
-	memcpy(&newTime, clock_get_time_p(), sizeof(newTime));
+	memcpy(&newTime, clock_get_time_p(0), sizeof(newTime));
 
 	display_mono_set_color(255, 0, 0);
 	if(!input_time(&newTime, false))
 	{
+		/* Select the number of diff hours */
+		/* display_mono_set_color(128, 29, 214); /\* Purple-ish *\/ */
+
+		/* Debugging this is hard without access to 3V */
+		/* clock_set_other_time_diff(1, */
+		/* 			  numberSelector(9, -23, +23, DISPLAY_BCD)); */
+		clock_set_other_time_diff(1, 9);
 		clock_set_time(newTime);
+
+		/* display_mono_set_color(255, 0, 0); */
 		display_string("  success  ",0,SCROLL_SPEED);
 	}
 
 	state_clear();
+}
+
+static void screen_date(void)
+{
+	char date_buf[30] = {0};
+
+	/* If already woken up, display current date */
+	display_clear();
+
+	/* Start with the day */
+	display_number(cal_get_day(), 0);
+	k_msleep(500);
+
+	/* And scroll the rest of the date */
+	sprintf(date_buf, "  %s %d  ",
+		cal_month_string[cal_get_month() - 1],
+		cal_get_year());
+	display_string(date_buf, 0, 80);
+
+	if(state.but_lr) {
+		state.but_lr = 0;
+
+		// toggle low-high brightness
+		if(state.brightness != BRIGHTNESS_DAY) {
+			state.brightness = BRIGHTNESS_DAY;
+		} else {
+			state.brightness = BRIGHTNESS_NIGHT;
+		}
+	}
+
+	if(state.but_ur == 2) {
+		/* If user long-pressed button during
+		 * date display, then set the date. */
+		struct date_time date;
+		if(input_date(&date) == 0) {
+			cal_set_date(&date);
+		}
+	}
+	/* Clear button state just in case */
+	state.but_ur = 0;
 }
 
 void screen_clock(void)
@@ -282,11 +334,11 @@ void screen_clock(void)
 	display_mono_set_color(255, 160, 0);
 
 	/* Live time value pointer */
-	time_struct_t* p_time = clock_get_time_p();
-	char date_buf[30] = {0};
+	time_struct_t* p_time = clock_get_time_p(0);
 
 	display_clear();
 	display_string("clock", 0, SCROLL_SPEED);
+	bool alt_time = 0;
 
 	uint32_t arm_reset = 0;
 
@@ -294,12 +346,14 @@ void screen_clock(void)
 	while(!state.next)
 	{
 		i++;
-		if(i >= SLEEP_TIMEOUT)
-		{
+		if(i >= SLEEP_TIMEOUT) {
 			i = 0;
 			/* Dim leds before turning off */
 			display_fade_next(DISP_FX_DIR_OUT, 500, DISP_FX_FADE);
 			board_suspend();
+			display_mono_set_color(255, 160, 0);
+			alt_time = 0;
+			p_time = clock_get_time_p(0);
 		}
 
 		if(state.but_ur == 1) {
@@ -310,41 +364,14 @@ void screen_clock(void)
 					    p_time->minutes,
 					    p_time->seconds, 0);
 				clock_thread_sync();
+			} else if(!alt_time) {
+				display_mono_set_color(255, 167, 140);
+				p_time = clock_get_time_p(1);
+				alt_time = 1;
 			} else {
-				/* If already woken up, display current date */
-				display_clear();
-
-				/* Start with the day */
-				display_number(cal_get_day(), 0);
-				k_msleep(500);
-
-				/* And scroll the rest of the date */
-				sprintf(date_buf, "  %s %d  ",
-					cal_month_string[cal_get_month() - 1],
-					cal_get_year());
-				display_string(date_buf, 0, 80);
-
-				if(state.but_lr) {
-					state.but_lr = 0;
-
-					// toggle low-high brightness
-					if(state.brightness != BRIGHTNESS_DAY) {
-						state.brightness = BRIGHTNESS_DAY;
-					} else {
-						state.brightness = BRIGHTNESS_NIGHT;
-					}
-				}
-
-				if(state.but_ur == 2) {
-					/* If user long-pressed button during
-					 * date display, then set the date. */
-					struct date_time date;
-					if(input_date(&date) == 0) {
-						cal_set_date(&date);
-					}
-				}
-				/* Clear button state just in case */
-				state.but_ur = 0;
+				/* This is a special sub-screen of clock */
+				display_mono_set_color(255, 160, 0);
+				screen_date();
 
 				/* Go to sleep right away */
 				i = SLEEP_TIMEOUT;
@@ -352,8 +379,7 @@ void screen_clock(void)
 			}
 		}
 
-		if(state.but_ur == 2)
-		{
+		if(state.but_ur == 2) {
 			state.but_ur = 0;
 			if(!arm_reset) {
 				arm_reset = 1;
@@ -363,8 +389,7 @@ void screen_clock(void)
 			}
 		}
 
-		if(state.but_lr == 2)
-		{
+		if(state.but_lr == 2) {
 			state.but_lr = 0;
 			if(!arm_reset) {
 				state.pgm_state = PGM_STATE_CLOCK_SET;
@@ -389,11 +414,13 @@ void screen_clock(void)
 
 			/* Go to sleep right away */
 			i = SLEEP_TIMEOUT;
-		} else {
-			/* Any other wakeup source will display in BCD format */
-			display_bcd(p_time->hours, p_time->minutes, p_time->seconds, 0);
-			clock_thread_sync();
+			continue;
 		}
+
+		/* Any other wakeup source will display in BCD format */
+		/* If the use doesn't press any buttons, show the time */
+		display_bcd(p_time->hours, p_time->minutes, p_time->seconds, 0);
+		clock_thread_sync();
 	}
 
 	if(arm_reset == 2) {
@@ -612,7 +639,7 @@ void screen_alarm_ring(void)
 	 * This screen should not be selectable by the user, should only be
 	 * shown by the alarm module. */
 	bool exit = false;
-	time_struct_t* p_time = clock_get_time_p();
+	time_struct_t* p_time = clock_get_time_p(0);
 
 	display_clear();
 	display_mono_set_color(185, 78, 2); /* Brown-ish */

@@ -9,6 +9,8 @@
 extern struct g_state state;
 
 time_struct_t currentTime;
+time_struct_t otherTime;
+int otherTimeDiff;
 
 static uint32_t clock_period_s = 1;
 
@@ -64,9 +66,17 @@ void clock_time_init()
 	k_timer_start(&clock_timer, K_SECONDS(1), K_SECONDS(1));
 }
 
-time_struct_t* clock_get_time_p()
+void clock_set_other_time_diff(uint8_t idx, int hours)
 {
-	return (time_struct_t*)(&currentTime);
+	otherTimeDiff = hours;
+}
+
+time_struct_t* clock_get_time_p(uint8_t idx)
+{
+	if(idx == 0)
+		return (time_struct_t*)(&currentTime);
+	else
+		return (time_struct_t*)(&otherTime);
 }
 
 void clock_set_time(time_struct_t newTime)
@@ -87,6 +97,18 @@ static void brightness_adjust(void)
 		&& currentTime.minutes == 0) {
 		state.brightness = BRIGHTNESS_DAY;
 	}
+}
+
+static void set_other_time(time_struct_t * p_new_time,
+			   time_struct_t * p_time,
+			   int hour_diff)
+{
+	p_new_time->hours = (uint8_t)
+		((int)
+		 ((int)p_time->hours + (int)hour_diff)
+		 % 24);
+	p_new_time->minutes = p_time->minutes;
+	p_new_time->seconds = p_time->seconds;
 }
 
 void clock_increment_seconds(uint32_t seconds)
@@ -112,4 +134,6 @@ void clock_increment_seconds(uint32_t seconds)
 			brightness_adjust();
 		}
 	}
+
+	set_other_time(&otherTime, &currentTime, otherTimeDiff);
 }

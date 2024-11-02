@@ -8,9 +8,10 @@ typedef struct
 	uint8_t seconds;
 } time_struct_t;
 
-time_struct_t* clock_get_time_p();
+time_struct_t* clock_get_time_p(uint8_t idx);
 void clock_set_time(time_struct_t time);
 void clock_time_init();
+void clock_set_other_time_diff(uint8_t idx, int hours);
 void clock_increment_seconds(uint32_t seconds);
 void clock_thread_sync();
 void clock_thread_unblock();
