@@ -273,16 +273,9 @@ void screen_time_set(void)
 	display_mono_set_color(255, 0, 0);
 	if(!input_time(&newTime, false))
 	{
-		/* Select the number of diff hours */
-		/* display_mono_set_color(128, 29, 214); /\* Purple-ish *\/ */
-
-		/* Debugging this is hard without access to 3V */
-		/* clock_set_other_time_diff(1, */
-		/* 			  numberSelector(9, -23, +23, DISPLAY_BCD)); */
 		clock_set_other_time_diff(1, 9);
 		clock_set_time(newTime);
 
-		/* display_mono_set_color(255, 0, 0); */
 		display_string("  success  ",0,SCROLL_SPEED);
 	}
 
