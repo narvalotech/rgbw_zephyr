@@ -17,13 +17,11 @@
                 "ms-vscode.cpptools",
                 "xaver.clang-format",
                 "EditorConfig.EditorConfig",
-                "mbehr1.vsc-webshark"
             ],
             "settings": {
                 "files.watcherExclude": {
                     "${localWorkspaceFolder}/bsim_out/*/**": true
                 },
-                "vsc-webshark.sharkdFullPath": "/usr/bin/sharkd"
             }
         }
     },
