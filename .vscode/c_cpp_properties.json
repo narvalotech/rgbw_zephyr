@@ -1,0 +1,17 @@
+{
+    "configurations": [
+        {
+            "name": "Default config",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/../**"
+            ],
+            "defines": [],
+            "compilerPath": "",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "clang-x64"
+        }
+    ],
+    "version": 4
+}
